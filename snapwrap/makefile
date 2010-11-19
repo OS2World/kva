@@ -14,6 +14,7 @@ CC = gcc
 CFLAGS = -Zomf -Wall -O3
 
 SNAP_INCLUDE = f:/lang/work/snap_sdk/include
+RM = rm -f
 INC_PATH = -I.. -I$(SNAP_INCLUDE)
 
 LD = gcc
@@ -35,14 +36,14 @@ snapwrap.dll : snapwrap.obj snapwrap.def
 snapwrap.obj : snapwrap.c
 
 clean :
-	-rm *.bak
-	-rm *.obj
-	-rm *.dll
+	$(RM) *.bak
+	$(RM) *.obj
+	$(RM) *.dll
 
 install : snapwrap.dll
 	$(INSTALL) -d $(LIBDIR)
 	$(INSTALL) snapwrap.dll $(LIBDIR)
 
 uninstall :
-	-rm $(LIBDIR)/snapwrap.dll
+	$(RM) $(LIBDIR)/snapwrap.dll
 

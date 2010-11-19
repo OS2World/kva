@@ -17,6 +17,8 @@ CC = gcc
 CFLAGS = -Wall -O3
 LDFLAGS =
 
+AR = ar
+
 RM = rm -f
 
 .c.o :
@@ -29,7 +31,7 @@ all : kva.a kva.lib kvademo.exe
 	$(MAKE) -C snapwrap all
 
 kva.a : kva.o kva_dive.o kva_wo.o kva_snap.o
-	ar rc $@ $^
+	$(AR) rc $@ $^
 
 kva.o : kva.c kva.h kva_internal.h kva_dive.h kva_wo.h kva_snap.h
 
