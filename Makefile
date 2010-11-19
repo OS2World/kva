@@ -57,9 +57,9 @@ clean :
 dist : src
 	mkdir kva_dist
 	$(MAKE) install PREFIX=$(shell pwd)/kva_dist
-	( cd kva_dist && zip -rpSm ../libkva$(VER).zip * )
+	( cd kva_dist && zip -rpSm ../libkva-$(VER).zip * )
 	rmdir kva_dist
-	zip -m libkva$(VER).zip src.zip
+	zip -m libkva-$(VER).zip src.zip
 
 distclean : clean
 	$(RM) *.zip
