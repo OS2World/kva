@@ -86,7 +86,7 @@ static BOOL loadDive( VOID )
 {
     UCHAR szFailedName[ 256 ];
 
-    if( DosLoadModule( szFailedName, sizeof( szFailedName ), "DIVE.DLL", &m_hmodDive ))
+    if( DosLoadModule( szFailedName, sizeof( szFailedName ), "DIVE", &m_hmodDive ))
         return FALSE;
 
     if( DosQueryProcAddr( m_hmodDive, 1, NULL, ( PFN * )&m_pfnDiveQueryCaps ))

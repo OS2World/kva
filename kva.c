@@ -198,7 +198,7 @@ APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
         if( kvaMode == KVAM_SNAP || kvaMode == KVAM_WO )
             *m_pfHWInUse = m_fHWInUse = TRUE;
 
-        if( DosLoadModule( szError, sizeof( szError ), "SSCORE.DLL", &m_hmodSSCore ) == 0 )
+        if( DosLoadModule( szError, sizeof( szError ), "SSCORE", &m_hmodSSCore ) == 0 )
         {
             DosQueryProcAddr( m_hmodSSCore, 0, "SSCore_TempDisable", &m_pfnSSCore_TempDisable );
             DosQueryProcAddr( m_hmodSSCore, 0, "SSCore_TempEnable", &m_pfnSSCore_TempEnable );

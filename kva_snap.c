@@ -92,7 +92,7 @@ static BOOL LoadWrapper( VOID )
     CHAR szTempStr[ 255 ];
 
     // Load Wrapper DLL
-    if( DosLoadModule( szTempStr, sizeof( szTempStr ), "snapwrap.dll", &m_swHandle ))
+    if( DosLoadModule( szTempStr, sizeof( szTempStr ), "snapwrap", &m_swHandle ))
         return FALSE;
 
     // Get all functions entry points

@@ -42,7 +42,7 @@ ULONG Q=0;
 
 BOOL LoadMPEG(void) {
 char TempStr[255];
-      if  (DosLoadModule(TempStr,sizeof(TempStr),"mpegdec.dll",&MPEGDecHandle)) return FALSE;
+      if  (DosLoadModule(TempStr,sizeof(TempStr),"mpegdec",&MPEGDecHandle)) return FALSE;
       //Get all functions entry points
       if  (DosQueryProcAddr(MPEGDecHandle,0,"OpenMPEG",( PFN * )&pOpenMPEG)) return FALSE;
       if  (DosQueryProcAddr(MPEGDecHandle,0,"CloseMPEG",( PFN * )&pCloseMPEG)) return FALSE;

@@ -97,7 +97,7 @@ static BOOL LoadOverlay(void)
     char szTempStr[ 255 ];
 
     // Load WarpOverlay! API DLL
-    if( DosLoadModule( szTempStr, sizeof( szTempStr ), "hwvideo.dll", &m_HWVideoHandle ))
+    if( DosLoadModule( szTempStr, sizeof( szTempStr ), "hwvideo", &m_HWVideoHandle ))
         return FALSE;
 
     // Get all functions entry points
