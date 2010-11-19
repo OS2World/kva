@@ -15,17 +15,6 @@
     You should have received a copy of the GNU Library General Public
     License along with this library; if not, write to the Free
     Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
-    Changes :
-        KO Myung-Hun <komh@chollian.net> 2007/02/20
-            - Added DECLARE_PFN macro to declare function pointer for
-              compatibility with IBMC mode
-
-        KO Myung-Hun <komh@chollian.net> 2007/02/25
-            - Added extern values, where g_pfnQueryAttr, g_pfnSetAttr
-
-        KO Myung-Hun <komh@chollian.net> 2007/11/24
-            - Moved kvaAdjustDstRect() to kva.h
 */
 
 #ifndef __KVA_INTERNAL_H__

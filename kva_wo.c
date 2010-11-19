@@ -15,37 +15,6 @@
     You should have received a copy of the GNU Library General Public
     License along with this library; if not, write to the Free
     Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
-    Changes :
-        KO Myung-Hun <komh@chollian.net> 2007/02/07
-            - Use kvaClearRect() instead of kvaClearWindow()
-            - Changed kvaClearRect() called in kvaSetup()
-
-        KO Myung-Hun <komh@chollian.net> 2007/02/20
-            - Use DECLARE_PFN macro to declare function pointer for
-              compatibility with IBMC mode
-
-        KO Myung-Hun <komh@chollian.net> 2007/02/25
-            - Added woQueryAttr() and woSetAttr()
-
-        KO Myung-Hun <komh@chollian.net> 2007/02/28
-            - Use WM_SIZE and WM_MOVE instead of WM_VRNENABLED and
-              WM_VRNDISABLED to prevent from flickering whenever visible
-              region is changed
-
-        KO Myung-Hun <komh@chollian.net> 2007/03/01
-            - Use type-cast ULONG explicitly for comparison with -1
-
-        KO Myung-Hun <komh@chollian.net> 2007/11/25
-            - Modified the codes to support the coordinate system change of
-              kvaAdjustDstRect()
-
-        KO Myung-Hun <komh@chollian.net> 2007/12/24
-            - Removed 'hwnd' parameter from kvaAdjustDstRect()
-
-        KO Myung-Hun <komh@chollian.net> 2008/01/17
-            - Added support of ulInputFormatFlags
-            - Added support of R565 color format
 */
 
 #define INCL_DOS

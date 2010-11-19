@@ -15,23 +15,6 @@
     You should have received a copy of the GNU Library General Public
     License along with this library; if not, write to the Free
     Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
-    Changes :
-        KO Myung-Hun <komh@chollian.net> 2008/01/13
-            - Use gasdk.h instead of graphics.h
-            - Fill 'fccScreen' in swCaps()
-            - Convert passed color to screen color format in
-              swSetDstVideoColorKey()
-
-        KO Myung-Hun <komh@chollian.net> 2008/01/17
-            - Added support of ulInputFormatFlags
-            - Added support of YV12, YVU9 color format
-
-        KO Myung-Hun <komh@chollian.net> 2008/02/04
-            - Specified gaVideoYVU to SNAP_YV12 and SNAP_YVU9 explicitly
-
-        KO Myung-Hun <komh@chollian.net> 2008/02/09
-            - Fixed the crash when SNAP overlay was not supported.
 */
 
 #include <os2.h>

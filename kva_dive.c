@@ -15,28 +15,6 @@
     You should have received a copy of the GNU Library General Public
     License along with this library; if not, write to the Free
     Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
-    Changes :
-        KO Myung-Hun <komh@chollian.net> 2007/02/07
-            - Use kvaClearRect() instead of kvaClearWindow()
-            - Changed kvaClearRect() called in kvaSetup()
-
-        KO Myung-Hun <komh@chollian.net> 2007/02/25
-            - Added diveQueryAttr() and diveSetAttr(), but they are dummies.
-
-        KO Myung-Hun <komh@chollian.net> 2007/11/25
-            - Fixed a potential memory leak of 'prcl' in destSetup()
-            - Modified the codes to support the coordinate system change of
-              kvaAdjustDstRect()
-
-        KO Myung-Hun <komh@chollian.net> 2007/12/24
-            - Removed 'hwnd' parameter from kvaAdjustDstRect()
-
-        KO Myung-Hun <komh@chollian.net> 2008/01/17
-            - Added support of ulInputFormatFlags
-
-        KO Myung-Hun <komh@chollian.net> 2008/02/01
-            - Added workarounds for Mozilla plugin
 */
 
 #define INCL_WIN

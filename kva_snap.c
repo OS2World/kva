@@ -15,15 +15,6 @@
     You should have received a copy of the GNU Library General Public
     License along with this library; if not, write to the Free
     Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
-    Changes :
-        KO Myung-Hun <komh@chollian.net> 2008/01/07
-            - SetVideoOutput() reset all attributes, so use it only one at
-              setup. And do not call DisableVideoOutput() when destination
-              rect is empty. Use workaround.
-
-        KO Myung-Hun <komh@chollian.net> 2008/01/17
-            - Use fccSrcColor variable to support YV12, YVU9 color format
 */
 
 #define INCL_DOS

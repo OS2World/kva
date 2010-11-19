@@ -15,46 +15,6 @@
     You should have received a copy of the GNU Library General Public
     License along with this library; if not, write to the Free
     Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
-    Changes :
-        KO Myung-Hun <komh@chollian.net> 2007/02/06
-            - Changed kvaClearWindow() to kvaClearRect()
-
-        KO Myung-Hun <komh@chollian.net> 2007/02/07
-            - Changed kvaClearRect() called in kvaSetup()
-
-        KO Myung-Hun <komh@chollian.net> 2007/02/20
-            - Use DECLARE_PFN macro to declare function pointer for
-              compatibility with IBMC mode
-
-        KO Myung-Hun <komh@chollian.net> 2007/02/25
-            - Added initialization check in kvaClearRect()
-            - Check return value of g_pfnDone() in kvaDone()
-            - Added kvaQueryAttr(), kvaSetAttr() and kvaResetAttr()
-
-        KO Myung-Hun <komh@chollian.net> 2007/09/29
-            - Added support of KVAR_FORCEANY
-
-        KO Myung-Hun <komh@chollian.net> 2007/11/25
-            - Changed the coordinate system of 'prclDst' of kvaAdjustDstRect()
-              from screen one to window one.
-
-        KO Myung-Hun <komh@chollian.net> 2007/12/22
-            - Added support of SNAP
-
-        KO Myung-Hun <komh@chollian.net> 2007/12/24
-            - Removed 'hwnd' parameter from kvaAdjustDstRect()
-            - Check parameters of kvaAdjustDstRect(), more strictly
-
-        KO Myung-Hun <komh@chollian.net> 2008/01/17
-            - Changed the detection order from wo > snap > dive to
-              snap > wo > dive
-
-        KO Myung-Hun <komh@chollian.net> 2008/02/03
-            - Allow only one HW overlay on system-wide
-
-        KO Myung-Hun <komh@chollian.net> 2008/08/11
-            - Load DIVE.DLL dynamically, so no need to link with mmpm2
 */
 
 #define INCL_WIN

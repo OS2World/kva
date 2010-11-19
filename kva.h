@@ -15,36 +15,6 @@
     You should have received a copy of the GNU Library General Public
     License along with this library; if not, write to the Free
     Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
-    Changes :
-        KO Myung-Hun <komh@chollian.net> 2007/02/25
-            - Added KVAE_NO_ATTRIBUTE macro
-            - Added KVAA_* macros
-            - Added prototypes for kvaQueryAttr(), kvaSetAttr() and
-              kvaResetAttr()
-
-        KO Myung-Hun <komh@chollian.net> 2007/09/29
-            - Added KVAR_FORCEANY macro
-            - Added the following variables to tagKVASETUP
-                ULONG ulAspectWidth
-                ULONG ulAspectHeight
-
-        KO Myung-Hun <komh@chollian.net> 2007/11/24
-            - Added kvaAdjustDstRect() declaration
-
-        KO Myung-Hun <komh@chollian.net> 2007/12/23
-            - Added support of SNAP
-
-        KO Myung-Hun <komh@chollian.net> 2007/12/24
-            - Removed 'hwnd' parameter from kvaAdjustDstRect()
-
-        KO Myung-Hun <komh@chollian.net> 2008/01/17
-            - Added KVAF_* flags
-            - Define FOURCC_YV12
-            - Added ulInputFormatFlags to tagKVACPAS structure
-
-        KO Myung-Hun <komh@chollian.net> 2008/02/03
-            - Added KVAE_HW_IN_USE, KVAE_NOT_ENOUGHT_MEMORY macro
 */
 
 #ifndef __KVA_H__
