@@ -87,7 +87,6 @@ extern "C" {
 #define KVAE_NOT_ENOUGH_MEMORY          ( -16 )
 #define KVAE_CANNOT_LOAD_DIVE           ( -17 )
 
-
 #define KVAA_BRIGHTNESS 0
 #define KVAA_CONTRAST   1
 #define KVAA_SATURATION 2
@@ -148,6 +147,8 @@ APIRET APIENTRY kvaAdjustDstRect( PRECTL prclSrc, PRECTL prclDst );
 APIRET APIENTRY kvaQueryAttr( ULONG ulAttr, PULONG pulValue );
 APIRET APIENTRY kvaSetAttr( ULONG ulAttr, PULONG pulValue );
 APIRET APIENTRY kvaResetAttr( VOID );
+APIRET APIENTRY kvaDisableScreenSaver( VOID );
+APIRET APIENTRY kvaEnableScreenSaver( VOID );
 
 #ifdef __cplusplus
 }

@@ -94,6 +94,10 @@ static BOOL     m_fLocked = FALSE;
 static PBOOL    m_pfHWInUse = NULL;
 static BOOL     m_fHWInUse = FALSE;
 
+static HMODULE  m_hmodSSCore = NULLHANDLE;
+static PFN      m_pfnSSCore_TempDisable = NULL;
+static PFN      m_pfnSSCore_TempEnable = NULL;
+
 APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
 {
     ULONG   rc;
@@ -108,6 +112,10 @@ APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
     m_ulRatio = KVAR_NONE;
     m_ulAspectWidth = -1;
     m_ulAspectHeight = -1;
+
+    m_hmodSSCore = NULLHANDLE;
+    m_pfnSSCore_TempDisable = NULL;
+    m_pfnSSCore_TempEnable = NULL;
 
     g_pfnDone = NULL;
     g_pfnLockBuffer = NULL;
@@ -185,8 +193,25 @@ APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
 
     if( !rc )
     {
+        UCHAR szError[ 256 ];
+
         if( kvaMode == KVAM_SNAP || kvaMode == KVAM_WO )
             *m_pfHWInUse = m_fHWInUse = TRUE;
+
+        if( DosLoadModule( szError, sizeof( szError ), "SSCORE.DLL", &m_hmodSSCore ) == 0 )
+        {
+            DosQueryProcAddr( m_hmodSSCore, 0, "SSCore_TempDisable", &m_pfnSSCore_TempDisable );
+            DosQueryProcAddr( m_hmodSSCore, 0, "SSCore_TempEnable", &m_pfnSSCore_TempEnable );
+
+            if( !m_pfnSSCore_TempDisable || !m_pfnSSCore_TempEnable )
+            {
+                DosFreeModule( m_hmodSSCore );
+
+                m_hmodSSCore = NULLHANDLE;
+                m_pfnSSCore_TempDisable = NULL;
+                m_pfnSSCore_TempEnable = NULL;
+            }
+        }
 
         m_fKVAInited = TRUE;
     }
@@ -204,6 +229,8 @@ APIRET APIENTRY kvaDone( VOID )
     rc = g_pfnDone();
     if( rc )
         return rc;
+
+    DosFreeModule( m_hmodSSCore );
 
     if( m_fHWInUse )
         *m_pfHWInUse = FALSE;
@@ -424,4 +451,27 @@ APIRET APIENTRY kvaResetAttr( VOID )
 
     return KVAE_NO_ERROR;
 }
+
+APIRET APIENTRY kvaDisableScreenSaver( VOID )
+{
+    if( !m_fKVAInited )
+        return KVAE_NOT_INITIALIZED;
+
+    if( m_pfnSSCore_TempDisable )
+        m_pfnSSCore_TempDisable();
+
+    return KVAE_NO_ERROR;
+}
+
+APIRET APIENTRY kvaEnableScreenSaver( VOID )
+{
+    if( !m_fKVAInited )
+        return KVAE_NOT_INITIALIZED;
+
+    if( m_pfnSSCore_TempEnable )
+        m_pfnSSCore_TempEnable();
+
+    return KVAE_NO_ERROR;
+}
+
 
