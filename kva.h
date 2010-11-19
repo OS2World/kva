@@ -57,6 +57,8 @@
 extern "C" {
 #endif
 
+#define KVA_VERSION "1.1.1"
+
 #define KVAM_AUTO   0
 #define KVAM_DIVE   1
 #define KVAM_WO     2
