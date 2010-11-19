@@ -13,14 +13,19 @@ endif
 CC = gcc
 CFLAGS = -Zomf -Wall -O3
 
-SNAP_INCLUDE = f:/lang/work/snap_sdk/include
 RM = rm -f
+
+ifeq ($(SNAP_BASE),)
+SNAP_BASE=f:/lang/work/snap_sdk
+endif
+
+SNAP_INCLUDE = $(SNAP_BASE)/include
 INC_PATH = -I.. -I$(SNAP_INCLUDE)
 
 LD = gcc
 LDFLAGS = -Zomf -Zdll
 
-SNAP_LIB = f:/lang/work/snap_sdk/lib/release/os232
+SNAP_LIB = $(SNAP_BASE)/lib/release/os232
 LIB_PATH = -L$(SNAP_LIB)
 
 .c.obj :
