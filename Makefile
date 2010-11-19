@@ -47,11 +47,11 @@ kvademo.exe : kvademo.o kva.a kvademo.def
 kvademo.o : kvademo.c kva.h mpeg.h
 
 clean :
-	-$(RM) *.bak
-	-$(RM) *.o
-	-$(RM) *.a
-	-$(RM) *.lib
-	-$(RM) *.exe
+	$(RM) *.bak
+	$(RM) *.o
+	$(RM) *.a
+	$(RM) *.lib
+	$(RM) *.exe
 	$(MAKE) -C snapwrap clean
 
 dist : src
@@ -62,14 +62,14 @@ dist : src
 	zip -m libkva$(VER).zip src.zip
 
 distclean : clean
-	-$(RM) *.zip
+	$(RM) *.zip
 
 src : kva.c kva_dive.c kva_snap.c kva_wo.c \
       kva.h kva_internal.h kva_dive.h kva_snap.h kva_wo.h hwvideo.h \
       Makefile \
       kvademo.c kvademo.def mpeg.h mpegdec.dll demo.mpg \
       snapwrap/snapwrap.c snapwrap/snapwrap.def snapwrap/makefile
-	-$(RM) src.zip
+	$(RM) src.zip
 	zip src.zip $^
 
 install : kva.a kva.lib kva.h
@@ -81,8 +81,8 @@ install : kva.a kva.lib kva.h
 	$(MAKE) -C snapwrap install PREFIX=$(PREFIX) INSTALL=$(INSTALL)
 
 uninstall :
-	-$(RM) $(LIBDIR)/kva.a $(LIBDIR)/kva.lib
-	-$(RM) $(INCDIR)/kva.h
+	$(RM) $(LIBDIR)/kva.a $(LIBDIR)/kva.lib
+	$(RM) $(INCDIR)/kva.h
 	$(MAKE) -C snapwrap uninstall
 
 
