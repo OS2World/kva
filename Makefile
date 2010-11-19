@@ -66,7 +66,7 @@ distclean : clean
 
 src : kva.c kva_dive.c kva_snap.c kva_wo.c \
       kva.h kva_internal.h kva_dive.h kva_snap.h kva_wo.h hwvideo.h \
-      Makefile \
+      Makefile Makefile.icc Makefile.wat \
       kvademo.c kvademo.def mpeg.h mpegdec.dll demo.mpg \
       snapwrap/snapwrap.c snapwrap/snapwrap.def snapwrap/makefile
 	$(RM) src.zip
