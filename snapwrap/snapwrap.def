@@ -1,0 +1,28 @@
+LIBRARY SNAPWRAP
+PROTMODE
+STACKSIZE 0x8000
+DATA MULTIPLE NONSHARED
+
+EXPORTS
+    swLoadDriver
+    swUnloadDriver
+    swSetVideoOutput
+    swMoveVideoOutput
+    swDisableVideoOutput
+    swSetDstVideoColorKey
+    swAllocVideoBuffers
+    swFreeVideoBuffers
+    swLockBuffer
+    swUnlockBuffer
+    swCaps
+    swQueryVideoBrightness
+    swSetVideoBrightness
+    swQueryVideoContrast
+    swSetVideoContrast
+    swQueryVideoSaturation
+    swSetVideoSaturation
+    swQueryVideoHue
+    swSetVideoHue
+    swQueryVideoGammaCorrect
+    swSetVideoGammaCorrect
+
