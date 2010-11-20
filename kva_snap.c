@@ -194,10 +194,9 @@ static MRESULT EXPENTRY snapNewWindowProc( HWND hwnd, ULONG msg, MPARAM mp1, MPA
                 WinMapWindowPoints( hwnd, HWND_DESKTOP, ( PPOINTL )&rclDst, 2 );
 
                 // SNAP does not like empty rect
-                if( rclDst.xLeft == rclDst.xRight || rclDst.yTop == rclDst.yBottom )
-                {
-                    // workaround
+                if( rclDst.xLeft == rclDst.xRight )
                     rclDst.xRight = rclDst.xLeft + 1;
+                if( rclDst.yTop == rclDst.yBottom )
                     rclDst.yTop = rclDst.yBottom + 1;
                 }
 
@@ -335,12 +334,10 @@ static APIRET APIENTRY snapSetup( PKVASETUP pkvas )
     WinMapWindowPoints( g_hwndKVA, HWND_DESKTOP, ( PPOINTL )&rclDst, 2 );
 
     // SNAP does not like empty rect
-    if( rclDst.xLeft == rclDst.xRight || rclDst.yTop == rclDst.yBottom )
-    {
-        // workaround
+    if( rclDst.xLeft == rclDst.xRight )
         rclDst.xRight = rclDst.xLeft + 1;
+    if( rclDst.yTop == rclDst.yBottom )
         rclDst.yTop = rclDst.yBottom + 1;
-    }
 
     if( m_pfnSWSetVideoOutput( m_pVideoBuf,
                                m_ss.lSrcX, m_ss.lSrcY, m_ss.lSrcCX, m_ss.lSrcCY,
