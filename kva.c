@@ -309,7 +309,7 @@ APIRET APIENTRY kvaAdjustDstRect( PRECTL prclSrc, PRECTL prclDst )
     if( !m_fKVAInited )
         return KVAE_NOT_INITIALIZED;
 
-    if( !prclSrc || !prclDst )
+    if(( !prclSrc && m_ulRatio == KVAR_ORIGINAL ) || !prclDst )
         return KVAE_INVALID_PARAMETER;
 
     WinQueryWindowRect( g_hwndKVA, prclDst );
