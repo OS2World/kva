@@ -142,10 +142,10 @@ static APIRET destSetup( VOID )
                                 HWND_DESKTOP,
                                 &ptl, 1 );
 
-            rclSrc.xLeft = 0;
-            rclSrc.yBottom = 0;
-            rclSrc.xRight = rclSrc.xLeft + m_sb.ulSrcWidth;
-            rclSrc.yTop = rclSrc.yBottom + m_sb.ulSrcHeight;
+            rclSrc.xLeft   = m_sb.ulSrcPosX;
+            rclSrc.yBottom = m_sb.ulSrcPosY;
+            rclSrc.xRight  = rclSrc.xLeft + m_sb.ulSrcWidth;
+            rclSrc.yTop    = rclSrc.yBottom + m_sb.ulSrcHeight;
 
             kvaAdjustDstRect( &rclSrc, &rclDst );
             WinMapWindowPoints( g_hwndKVA, HWND_DESKTOP, ( PPOINTL )&rclDst, 2 );
@@ -338,10 +338,10 @@ static APIRET APIENTRY diveSetup( PKVASETUP pkvas )
 
     m_sb.ulStructLen       = sizeof( SETUP_BLITTER );
     m_sb.fccSrcColorFormat = pkvas->fccSrcColor;
-    m_sb.ulSrcWidth        = pkvas->szlSrcSize.cx;
-    m_sb.ulSrcHeight       = pkvas->szlSrcSize.cy;
-    m_sb.ulSrcPosX         = 0;
-    m_sb.ulSrcPosY         = 0;
+    m_sb.ulSrcWidth        = pkvas->rclSrcRect.xRight - pkvas->rclSrcRect.xLeft;
+    m_sb.ulSrcHeight       = pkvas->rclSrcRect.yBottom - pkvas->rclSrcRect.yTop;
+    m_sb.ulSrcPosX         = pkvas->rclSrcRect.xLeft;
+    m_sb.ulSrcPosY         = pkvas->rclSrcRect.yTop;
     m_sb.fInvert           = pkvas->fInvert;
     m_sb.ulDitherType      = ( ULONG )pkvas->fDither;
 

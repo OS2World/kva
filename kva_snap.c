@@ -34,10 +34,7 @@
 
 typedef struct _SNAPSETUP
 {
-    LONG    lSrcX;
-    LONG    lSrcY;
-    LONG    lSrcCX;
-    LONG    lSrcCY;
+    RECTL rclSrcRect;       // top-left is (0,0)
 } SNAPSETUP, *PSNAPSETUP;
 
 static SNAPSETUP    m_ss = { 0, };
@@ -183,14 +180,9 @@ static MRESULT EXPENTRY snapNewWindowProc( HWND hwnd, ULONG msg, MPARAM mp1, MPA
         case WM_PAINT :
             if( m_pVideoBuf )
             {
-                RECTL   rclSrc;
                 RECTL   rclDst;
 
-                rclSrc.xLeft = m_ss.lSrcX;
-                rclSrc.yBottom = m_ss.lSrcY;
-                rclSrc.xRight = rclSrc.xLeft + m_ss.lSrcCX;
-                rclSrc.yTop = rclSrc.yBottom + m_ss.lSrcCY;
-                kvaAdjustDstRect( &rclSrc, &rclDst );
+                kvaAdjustDstRect( &m_ss.rclSrcRect, &rclDst );
                 WinMapWindowPoints( hwnd, HWND_DESKTOP, ( PPOINTL )&rclDst, 2 );
 
                 // SNAP does not like empty rect
@@ -198,10 +190,13 @@ static MRESULT EXPENTRY snapNewWindowProc( HWND hwnd, ULONG msg, MPARAM mp1, MPA
                     rclDst.xRight = rclDst.xLeft + 1;
                 if( rclDst.yTop == rclDst.yBottom )
                     rclDst.yTop = rclDst.yBottom + 1;
-                }
 
-                m_pfnSWMoveVideoOutput( m_ss.lSrcX, m_ss.lSrcY, m_ss.lSrcCX, m_ss.lSrcCY,
-                                        rclDst.xLeft, rclDst.yTop, rclDst.xRight - rclDst.xLeft, rclDst.yTop - rclDst.yBottom );
+                m_pfnSWMoveVideoOutput( m_ss.rclSrcRect.xLeft, m_ss.rclSrcRect.yTop,
+                                        m_ss.rclSrcRect.xRight - m_ss.rclSrcRect.xLeft,
+                                        m_ss.rclSrcRect.yBottom - m_ss.rclSrcRect.yTop,
+                                        rclDst.xLeft, rclDst.yTop,
+                                        rclDst.xRight - rclDst.xLeft,
+                                        rclDst.yTop - rclDst.yBottom );
             }
             break; // fall through to old window proc
     }
@@ -325,12 +320,9 @@ static APIRET APIENTRY snapSetup( PKVASETUP pkvas )
 
     m_pfnSWSetDstVideoColorKey( g_ulKeyColor );
 
-    m_ss.lSrcX = 0;
-    m_ss.lSrcY = 0;
-    m_ss.lSrcCX = pkvas->szlSrcSize.cx;
-    m_ss.lSrcCY = pkvas->szlSrcSize.cy;
+    m_ss.rclSrcRect = pkvas->rclSrcRect;
 
-    kvaAdjustDstRect( &pkvas->rclSrcRect, &rclDst );
+    kvaAdjustDstRect( &m_ss.rclSrcRect, &rclDst );
     WinMapWindowPoints( g_hwndKVA, HWND_DESKTOP, ( PPOINTL )&rclDst, 2 );
 
     // SNAP does not like empty rect
@@ -340,8 +332,12 @@ static APIRET APIENTRY snapSetup( PKVASETUP pkvas )
         rclDst.yTop = rclDst.yBottom + 1;
 
     if( m_pfnSWSetVideoOutput( m_pVideoBuf,
-                               m_ss.lSrcX, m_ss.lSrcY, m_ss.lSrcCX, m_ss.lSrcCY,
-                               rclDst.xLeft, rclDst.yTop, rclDst.xRight - rclDst.xLeft, rclDst.yTop - rclDst.yBottom,
+                               m_ss.rclSrcRect.xLeft, m_ss.rclSrcRect.yTop,
+                               m_ss.rclSrcRect.xRight - m_ss.rclSrcRect.xLeft,
+                               m_ss.rclSrcRect.yBottom - m_ss.rclSrcRect.yTop,
+                               rclDst.xLeft, rclDst.yTop,
+                               rclDst.xRight - rclDst.xLeft,
+                               rclDst.yTop - rclDst.yBottom,
                                pkvas->fccSrcColor ))
     {
         m_pfnSWFreeVideoBuffers( m_pVideoBuf );

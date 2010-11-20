@@ -290,27 +290,13 @@ static APIRET APIENTRY woUnlockBuffer( VOID )
     return m_pfnHWVIDEOEndUpdate();
 }
 
-#ifndef min
-#define min( a, b ) (( a ) < ( b ) ? ( a ) : ( b ))
-#endif
-
-#ifndef max
-#define max( a, b ) (( a ) > ( b ) ? ( a ) : ( b ))
-#endif
-
 static APIRET APIENTRY woSetup( PKVASETUP pkvas )
 {
-    m_hwvs.ulLength = sizeof( HWVIDEOSETUP );
-
-    m_hwvs.rctlSrcRect.xLeft = min( pkvas->rclSrcRect.xLeft, pkvas->rclSrcRect.xRight );
-    m_hwvs.rctlSrcRect.xRight = max( pkvas->rclSrcRect.xLeft, pkvas->rclSrcRect.xRight );
-    m_hwvs.rctlSrcRect.yTop = min( pkvas->rclSrcRect.yTop, pkvas->rclSrcRect.yBottom );
-    m_hwvs.rctlSrcRect.yBottom = max( pkvas->rclSrcRect.yTop, pkvas->rclSrcRect.yBottom );
-
-    m_hwvs.szlSrcSize = pkvas->szlSrcSize;
-    m_hwvs.fccColor = pkvas->fccSrcColor;
-
-    m_hwvs.ulSrcPitch = ( m_hwvs.szlSrcSize.cx * 2 + m_hwvc.ulScanAlign ) & ~m_hwvc.ulScanAlign;
+    m_hwvs.ulLength    = sizeof( HWVIDEOSETUP );
+    m_hwvs.rctlSrcRect = pkvas->rclSrcRect;
+    m_hwvs.szlSrcSize  = pkvas->szlSrcSize;
+    m_hwvs.fccColor    = pkvas->fccSrcColor;
+    m_hwvs.ulSrcPitch  = ( m_hwvs.szlSrcSize.cx * 2 + m_hwvc.ulScanAlign ) & ~m_hwvc.ulScanAlign;
 
     kvaAdjustDstRect( &m_hwvs.rctlSrcRect, &m_hwvs.rctlDstRect );
     WinMapWindowPoints( g_hwndKVA, HWND_DESKTOP, ( PPOINTL )&m_hwvs.rctlDstRect, 2 );
