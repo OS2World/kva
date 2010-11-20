@@ -176,6 +176,11 @@ static MRESULT EXPENTRY snapNewWindowProc( HWND hwnd, ULONG msg, MPARAM mp1, MPA
 
         case WM_SIZE :
         case WM_MOVE :
+        // WinMapWindowPoints() sometimes does a wrong conversion on WM_MOVE.
+        // For examples, minimizing and restoring a window of Qt4.
+        // So we need to setup on WM_PAINT as well in order to work around
+        // this problem.
+        case WM_PAINT :
             if( m_pVideoBuf )
             {
                 RECTL   rclSrc;

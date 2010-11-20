@@ -114,6 +114,11 @@ static MRESULT EXPENTRY woNewWindowProc( HWND hwnd, ULONG msg, MPARAM mp1, MPARA
 
         case WM_SIZE :
         case WM_MOVE :
+        // WinMapWindowPoints() sometimes does a wrong conversion on WM_MOVE.
+        // For examples, minimizing and restoring a window of Qt4.
+        // So we need to setup on WM_PAINT as well in order to work around
+        // this problem.
+        case WM_PAINT :
             kvaAdjustDstRect( &m_hwvs.rctlSrcRect, &m_hwvs.rctlDstRect );
             WinMapWindowPoints( hwnd, HWND_DESKTOP, ( PPOINTL )&m_hwvs.rctlDstRect, 2 );
             m_pfnHWVIDEOSetup( &m_hwvs );
