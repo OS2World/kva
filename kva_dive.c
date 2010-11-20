@@ -345,6 +345,7 @@ static APIRET APIENTRY diveCaps( PKVACAPS pkvac )
 {
     FOURCC      fccFormats[ 100 ];
     DIVE_CAPS   diveCaps;
+    BYTE        bRLen, bROfs, bGLen, bGOfs, bBLen, bBOfs;
     ULONG       rc;
 
     diveCaps.ulStructLen = sizeof( DIVE_CAPS );
@@ -364,20 +365,43 @@ static APIRET APIENTRY diveCaps( PKVACAPS pkvac )
     pkvac->ulInputFormatFlags = 0;
     switch( pkvac->fccScreen )
     {
-        case FOURCC_BGR4 :
-        case FOURCC_BGR3 :
-        case FOURCC_LUT8 :  // maybe best T.T
-            pkvac->ulInputFormatFlags |= KVAF_BGR24;
+        case FOURCC_R555 :
+            pkvac->ulInputFormatFlags |= KVAF_BGR15;
+            bRLen = 5;
+            bROfs = 10;
+            bGLen = 5;
+            bGOfs = 5;
+            bBLen = 5;
+            bBOfs = 0;
             break;
 
         case FOURCC_R565 :
             pkvac->ulInputFormatFlags |= KVAF_BGR16;
+            bRLen = 5;
+            bROfs = 11;
+            bGLen = 6;
+            bGOfs = 5;
+            bBLen = 5;
+            bBOfs = 0;
             break;
 
-        case FOURCC_R555 :
-            pkvac->ulInputFormatFlags |= KVAF_BGR15;
+        case FOURCC_BGR4 :
+        case FOURCC_BGR3 :
+        case FOURCC_LUT8 :  // maybe best T.T
+        default :
+            pkvac->ulInputFormatFlags |= KVAF_BGR24;
+            bRLen = 8;
+            bROfs = 16;
+            bGLen = 8;
+            bGOfs = 8;
+            bBLen = 8;
+            bBOfs = 0;
             break;
     }
+
+    pkvac->ulRMask = (( 1 << bRLen ) - 1 ) << bROfs;
+    pkvac->ulGMask = (( 1 << bGLen ) - 1 ) << bGOfs;
+    pkvac->ulBMask = (( 1 << bBLen ) - 1 ) << bBOfs;
 
     return KVAE_NO_ERROR;
 }

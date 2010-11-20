@@ -348,6 +348,9 @@ static APIRET APIENTRY woCaps( PKVACAPS pkvac )
 
             case FOURCC_R565 :
                 pkvac->ulInputFormatFlags |= KVAF_BGR16;
+                pkvac->ulRMask = (( 1 << 5 ) - 1 ) << 11;
+                pkvac->ulGMask = (( 1 << 6 ) - 1 ) << 5;
+                pkvac->ulBMask = (( 1 << 5 ) - 1 ) << 0;
                 break;
         }
     }

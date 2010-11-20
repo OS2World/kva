@@ -104,6 +104,9 @@ typedef struct tagKVACAPS
     ULONG   cyScreen;
     FOURCC  fccScreen;
     ULONG   ulInputFormatFlags;
+    ULONG   ulRMask;
+    ULONG   ulGMask;
+    ULONG   ulBMask;
 } KVACAPS, *PKVACAPS;
 
 #pragma pack()
