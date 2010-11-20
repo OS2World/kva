@@ -119,10 +119,19 @@ static MRESULT EXPENTRY woNewWindowProc( HWND hwnd, ULONG msg, MPARAM mp1, MPARA
         // So we need to setup on WM_PAINT as well in order to work around
         // this problem.
         case WM_PAINT :
-            kvaAdjustDstRect( &m_hwvs.rctlSrcRect, &m_hwvs.rctlDstRect );
-            WinMapWindowPoints( hwnd, HWND_DESKTOP, ( PPOINTL )&m_hwvs.rctlDstRect, 2 );
-            m_pfnHWVIDEOSetup( &m_hwvs );
+        {
+            RECTL rcl;
+
+            kvaAdjustDstRect( &m_hwvs.rctlSrcRect, &rcl );
+            WinMapWindowPoints( hwnd, HWND_DESKTOP, ( PPOINTL )&rcl, 2 );
+            if( !WinEqualRect( WinQueryAnchorBlock( hwnd ),
+                               &rcl, &m_hwvs.rctlDstRect ))
+            {
+                m_hwvs.rctlDstRect = rcl;
+                m_pfnHWVIDEOSetup( &m_hwvs );
+            }
             break; // fall through to old window proc
+        }
     }
 
     return m_pfnwpOld( hwnd, msg, mp1, mp2 );
