@@ -15,6 +15,8 @@ CFLAGS = -Zomf -Wall -O3
 
 RM = rm -f
 
+EXEPACK = lxlite /B- /L- /CS
+
 ifeq ($(SNAP_BASE),)
 SNAP_BASE=f:/lang/work/snap_sdk
 endif
@@ -37,6 +39,7 @@ all : snapwrap.dll
 
 snapwrap.dll : snapwrap.obj snapwrap.def
 	$(LD) $(LDFLAGS) $(LIB_PATH) -o $@ $^ -lpm -ln_ga
+	$(EXEPACK) $@
 
 snapwrap.obj : snapwrap.c
 
