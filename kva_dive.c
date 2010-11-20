@@ -34,7 +34,7 @@
 #include "kva_dive.h"
 
 static HDIVE            m_hdive = NULLHANDLE;
-static ULONG            m_ulBufferNumber = 0;
+static ULONG            m_ulBufferNumber = ( ULONG )-1;
 static SETUP_BLITTER    m_sb = { 0 };
 
 static PFNWP        m_pfnwpOld = NULL;
@@ -231,7 +231,7 @@ APIRET APIENTRY diveInit( VOID )
     }
 
     m_hdive = NULLHANDLE;
-    m_ulBufferNumber = 0;
+    m_ulBufferNumber = ( ULONG )-1;
     memset( &m_sb, 0, sizeof( SETUP_BLITTER ));
 
     m_pfnwpOld = NULL;
@@ -282,6 +282,12 @@ static APIRET APIENTRY diveDone( VOID )
 
     WinSubclassWindow( g_hwndKVA, m_pfnwpOld );
 
+    if( m_ulBufferNumber != ( ULONG )-1 )
+    {
+        m_pfnDiveFreeImageBuffer( m_hdive, m_ulBufferNumber );
+        m_ulBufferNumber = ( ULONG )-1;
+    }
+
     rc = m_pfnDiveClose( m_hdive );
 
     DosFreeModule( m_hmodDive );
@@ -292,41 +298,44 @@ static APIRET APIENTRY diveDone( VOID )
 static APIRET APIENTRY diveLockBuffer( PPVOID ppBuffer, PULONG pulBPL )
 {
     ULONG   ulScanLines;
-    ULONG   rc;
 
-    rc = m_pfnDiveAllocImageBuffer( m_hdive, &m_ulBufferNumber, m_sb.fccSrcColorFormat,
-                                    m_sb.ulSrcWidth, m_sb.ulSrcHeight, 0, 0 );
-    if( rc )
-        return rc;
-
-    rc = m_pfnDiveBeginImageBufferAccess( m_hdive, m_ulBufferNumber, ( PBYTE * )ppBuffer, pulBPL, &ulScanLines );
-    if( rc )
-        m_pfnDiveFreeImageBuffer( m_hdive, m_ulBufferNumber );
-
-    return rc;
+    return m_pfnDiveBeginImageBufferAccess( m_hdive, m_ulBufferNumber,
+                                            ( PBYTE * )ppBuffer, pulBPL,
+                                            &ulScanLines );
 }
 
 static APIRET APIENTRY diveUnlockBuffer( VOID )
 {
-    ULONG rc, rc1;
+    ULONG rc;
 
     rc = m_pfnDiveEndImageBufferAccess( m_hdive, m_ulBufferNumber );
     if( rc )
-        goto exit;
+        return rc;
 
     rc = m_pfnDiveBlitImage( m_hdive, m_ulBufferNumber, DIVE_BUFFER_SCREEN );
     if( rc == DIVE_ERR_BLITTER_NOT_SETUP ) // occur when entirely covered
         rc = DIVE_SUCCESS;
-exit:
-    rc1 = m_pfnDiveFreeImageBuffer( m_hdive, m_ulBufferNumber );
-    if( rc )
-        rc1 = rc;
 
-    return rc1;
+    return rc;
 }
 
 static APIRET APIENTRY diveSetup( PKVASETUP pkvas )
 {
+    ULONG rc;
+
+    if( m_ulBufferNumber != ( ULONG )-1 )
+        m_pfnDiveFreeImageBuffer( m_hdive, m_ulBufferNumber );
+
+    rc = m_pfnDiveAllocImageBuffer( m_hdive, &m_ulBufferNumber, pkvas->fccSrcColor,
+                                    pkvas->szlSrcSize.cx, pkvas->szlSrcSize.cy,
+                                    0, 0 );
+    if( rc )
+    {
+        m_ulBufferNumber = ( ULONG )-1;
+
+        return rc;
+    }
+
     m_sb.ulStructLen       = sizeof( SETUP_BLITTER );
     m_sb.fccSrcColorFormat = pkvas->fccSrcColor;
     m_sb.ulSrcWidth        = pkvas->szlSrcSize.cx;
@@ -336,7 +345,15 @@ static APIRET APIENTRY diveSetup( PKVASETUP pkvas )
     m_sb.fInvert           = pkvas->fInvert;
     m_sb.ulDitherType      = ( ULONG )pkvas->fDither;
 
-    return destSetup();
+    rc = destSetup();
+    if( rc )
+    {
+        m_pfnDiveFreeImageBuffer( m_hdive, m_ulBufferNumber );
+
+        m_ulBufferNumber = ( ULONG )-1;
+    }
+
+    return rc;
 }
 
 #ifndef SHOW_CPAS
