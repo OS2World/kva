@@ -175,10 +175,10 @@ int main ( int argc, char *argv[] )
     Setup.szlSrcSize.cx=MPEGInfo.Width;  //source width
     Setup.szlSrcSize.cy=MPEGInfo.Height; //source height
     Setup.fccSrcColor=FOURCC_Y422;          //source colorspace
-    Setup.rclSrcRect.xRight=0;
-    Setup.rclSrcRect.xLeft=MPEGInfo.Width;
-    Setup.rclSrcRect.yBottom=0;
-    Setup.rclSrcRect.yTop=MPEGInfo.Height;
+    Setup.rclSrcRect.xLeft=0;
+    Setup.rclSrcRect.yTop=0;
+    Setup.rclSrcRect.xRight=MPEGInfo.Width;
+    Setup.rclSrcRect.yBottom=MPEGInfo.Height;
       // calculate requered HW-dependent scanline aligment
     //Setup.ulSrcPitch=(MPEGInfo.Width*2+OverlayCaps.ulScanAlign)&~OverlayCaps.ulScanAlign;
       // Determine keying color

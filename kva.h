@@ -86,7 +86,7 @@ extern "C" {
 typedef struct tagKVASETUP
 {
     ULONG       ulLength;         //size of structure in bytes
-    RECTL       rclSrcRect;       //displayed subrectangle
+    RECTL       rclSrcRect;       //displayed subrectangle, top-left is (0,0)
     SIZEL       szlSrcSize;       //source image size
     ULONG       ulRatio;          //aspect ratio
     ULONG       ulAspectWidth;    //aspect width, only for KVAR_FORCEANY
