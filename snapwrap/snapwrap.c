@@ -90,6 +90,21 @@ static inline ULONG fcc2snap( FOURCC fcc )
     return 0;
 }
 
+static int isHelperAvailable( VOID )
+{
+    HFILE hSDDHelp;
+    ULONG ulAction;
+
+    if( DosOpen( "SDDHELP$", &hSDDHelp, &ulAction, 0, 0,
+                 FILE_OPEN, OPEN_SHARE_DENYNONE | OPEN_ACCESS_READWRITE, 
+                 NULL ))
+        return 0;
+        
+    DosClose( hSDDHelp );
+
+    return 1;
+}
+
 APIRET APIENTRY swLoadDriver( VOID )
 {
     dc = NULL;
@@ -100,6 +115,9 @@ APIRET APIENTRY swLoadDriver( VOID )
     memset( &bufmgr, 0, sizeof( bufmgr ));
     ref2d = NULL;
 
+    if( !isHelperAvailable())
+        return -1;
+    
     dc = GA_loadDriver( 0, false );
     if( !dc )
         return -1;
