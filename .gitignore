@@ -1,0 +1,14 @@
+*.o
+*.obj
+*.exe
+*.a
+*.lib
+*.err
+*.diff
+*.dll
+*.cmd
+*.log
+*.bak
+*.txt
+*.imp
+med.lru
