@@ -34,7 +34,7 @@
 #include "kva_dive.h"
 
 static HDIVE            m_hdive = NULLHANDLE;
-static ULONG            m_ulBufferNumber = ( ULONG )-1;
+static ULONG            m_ulBufferNumber = 0;
 static SETUP_BLITTER    m_sb = { 0 };
 
 static PFNWP        m_pfnwpOld = NULL;
@@ -231,7 +231,7 @@ APIRET APIENTRY diveInit( VOID )
     }
 
     m_hdive = NULLHANDLE;
-    m_ulBufferNumber = ( ULONG )-1;
+    m_ulBufferNumber = 0;
     memset( &m_sb, 0, sizeof( SETUP_BLITTER ));
 
     m_pfnwpOld = NULL;
@@ -282,10 +282,10 @@ static APIRET APIENTRY diveDone( VOID )
 
     WinSubclassWindow( g_hwndKVA, m_pfnwpOld );
 
-    if( m_ulBufferNumber != ( ULONG )-1 )
+    if( m_ulBufferNumber != 0 )
     {
         m_pfnDiveFreeImageBuffer( m_hdive, m_ulBufferNumber );
-        m_ulBufferNumber = ( ULONG )-1;
+        m_ulBufferNumber = 0;
     }
 
     rc = m_pfnDiveClose( m_hdive );
@@ -323,7 +323,7 @@ static APIRET APIENTRY diveSetup( PKVASETUP pkvas )
 {
     ULONG rc;
 
-    if( m_ulBufferNumber != ( ULONG )-1 )
+    if( m_ulBufferNumber != 0 )
         m_pfnDiveFreeImageBuffer( m_hdive, m_ulBufferNumber );
 
     rc = m_pfnDiveAllocImageBuffer( m_hdive, &m_ulBufferNumber, pkvas->fccSrcColor,
@@ -331,7 +331,7 @@ static APIRET APIENTRY diveSetup( PKVASETUP pkvas )
                                     0, 0 );
     if( rc )
     {
-        m_ulBufferNumber = ( ULONG )-1;
+        m_ulBufferNumber = 0;
 
         return rc;
     }
@@ -350,7 +350,7 @@ static APIRET APIENTRY diveSetup( PKVASETUP pkvas )
     {
         m_pfnDiveFreeImageBuffer( m_hdive, m_ulBufferNumber );
 
-        m_ulBufferNumber = ( ULONG )-1;
+        m_ulBufferNumber = 0;
     }
 
     return rc;
