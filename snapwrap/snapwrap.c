@@ -96,10 +96,10 @@ static int isHelperAvailable( VOID )
     ULONG ulAction;
 
     if( DosOpen( "SDDHELP$", &hSDDHelp, &ulAction, 0, 0,
-                 FILE_OPEN, OPEN_SHARE_DENYNONE | OPEN_ACCESS_READWRITE, 
+                 FILE_OPEN, OPEN_SHARE_DENYNONE | OPEN_ACCESS_READWRITE,
                  NULL ))
         return 0;
-        
+
     DosClose( hSDDHelp );
 
     return 1;
@@ -117,7 +117,7 @@ APIRET APIENTRY swLoadDriver( VOID )
 
     if( !isHelperAvailable())
         return -1;
-    
+
     dc = GA_loadDriver( 0, false );
     if( !dc )
         return -1;
