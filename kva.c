@@ -30,6 +30,7 @@
 #include "kva_dive.h"
 #include "kva_wo.h"
 #include "kva_snap.h"
+#include "kva_vman.h"
 
 #define KVA_SHARED_MEM_NAME "\\SHAREMEM\\KVA\\HWINUSE"
 
@@ -137,6 +138,18 @@ APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
         }
         else
             kvaMode = KVAM_WO;
+    }
+
+    if( kvaMode == KVAM_VMAN || kvaMode == KVAM_AUTO )
+    {
+        rc = vmanInit();
+        if( rc )
+        {
+            if( kvaMode != KVAM_AUTO )
+                return rc;
+        }
+        else
+            kvaMode = KVAM_VMAN;
     }
 
     if( kvaMode == KVAM_DIVE || kvaMode == KVAM_AUTO )

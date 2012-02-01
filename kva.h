@@ -33,6 +33,7 @@ extern "C" {
 #define KVAM_DIVE   1
 #define KVAM_WO     2
 #define KVAM_SNAP   3
+#define KVAM_VMAN   4
 
 #define KVAR_NONE       0
 #define KVAR_ORIGINAL   1
@@ -58,6 +59,8 @@ extern "C" {
 #define KVAE_HW_IN_USE                  ( -15 )
 #define KVAE_NOT_ENOUGH_MEMORY          ( -16 )
 #define KVAE_CANNOT_LOAD_DIVE           ( -17 )
+#define KVAE_CANNOT_LOAD_VMAN           ( -18 )
+#define KVAE_VMAN_ERROR                 ( -19 )
 
 #define KVAA_BRIGHTNESS 0
 #define KVAA_CONTRAST   1

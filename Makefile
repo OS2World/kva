@@ -30,7 +30,7 @@ RM = rm -f
 all : kva.a kva.lib kvademo.exe
 	$(MAKE) -C snapwrap all
 
-kva.a : kva.o kva_dive.o kva_wo.o kva_snap.o
+kva.a : kva.o kva_dive.o kva_wo.o kva_snap.o kva_vman.o
 	$(AR) rc $@ $^
 
 kva.o : kva.c kva.h kva_internal.h kva_dive.h kva_wo.h kva_snap.h
@@ -40,6 +40,8 @@ kva_dive.o : kva_dive.c kva.h kva_internal.h kva_dive.h
 kva_wo.o : kva_wo.c hwvideo.h kva.h kva_internal.h kva_wo.h
 
 kva_snap.o : kva_snap.c kva.h kva_internal.h kva_snap.h
+
+kva_vman.o : kva_vman.c kva.h kva_internal.h kva_vman.h
 
 kvademo.exe : kvademo.o kva.a kvademo.def
 	$(CC) $(LDFLAGS) -o $@ $^
@@ -66,6 +68,7 @@ distclean : clean
 
 src : kva.c kva_dive.c kva_snap.c kva_wo.c \
       kva.h kva_internal.h kva_dive.h kva_snap.h kva_wo.h hwvideo.h \
+      kva_vman.c kva_vman.h gradd.h \
       Makefile Makefile.icc Makefile.wat \
       kvademo.c kvademo.def mpeg.h mpegdec.dll demo.mpg \
       snapwrap/snapwrap.c snapwrap/snapwrap.def snapwrap/makefile
