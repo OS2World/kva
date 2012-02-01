@@ -72,6 +72,7 @@ extern "C" {
 #define KVAF_BGR24      0x00010000
 #define KVAF_BGR16      0x00020000
 #define KVAF_BGR15      0x00040000
+#define KVAF_BGR32      0x00080000
 
 #ifndef FOURCC_YV12
 #define FOURCC_YV12     mmioFOURCC( 'Y', 'V', '1', '2' )

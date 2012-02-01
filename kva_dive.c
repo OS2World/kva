@@ -440,7 +440,10 @@ static APIRET APIENTRY diveCaps( PKVACAPS pkvac )
         case FOURCC_BGR3 :
         case FOURCC_LUT8 :  // maybe best T.T
         default :
-            pkvac->ulInputFormatFlags |= KVAF_BGR24;
+            if( pkvac->fccScreen == FOURCC_BGR4 )
+                pkvac->ulInputFormatFlags |= KVAF_BGR32;
+            else
+                pkvac->ulInputFormatFlags |= KVAF_BGR24;
             bRLen = 8;
             bROfs = 16;
             bGLen = 8;
