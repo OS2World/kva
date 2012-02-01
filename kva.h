@@ -1,6 +1,6 @@
 /*
     K Video Accelerator library for OS/2
-    Copyright (C) 2007 by KO Myung-Hun <komh@chollian.net>
+    Copyright (C) 2007-2012 by KO Myung-Hun <komh@chollian.net>
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Library General Public
