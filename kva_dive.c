@@ -33,8 +33,11 @@
 #include "kva_internal.h"
 #include "kva_dive.h"
 
+#define calcStride( width, fcc ) ((( width ) * fcc2bpp( fcc ) + 7 ) & ~7)
+
 static HDIVE            m_hdive = NULLHANDLE;
 static ULONG            m_ulBufferNumber = 0;
+static PBYTE            m_pbImgBuf;
 static SETUP_BLITTER    m_sb = { 0 };
 
 static PFNWP        m_pfnwpOld = NULL;
@@ -98,6 +101,28 @@ static BOOL loadDive( VOID )
         return FALSE;
 
     return TRUE;
+}
+
+static int fcc2bpp( FOURCC fcc )
+{
+    switch( fcc )
+    {
+        case FOURCC_LUT8 :
+            return 1;
+
+        case FOURCC_R555 :
+        case FOURCC_R565 :
+            return 2;
+
+        case FOURCC_BGR3 :
+            return 3;
+
+        case FOURCC_BGR4 :
+            return 4;
+    }
+
+    // Ooops, expect a luck
+    return 2;
 }
 
 static APIRET destSetup( VOID )
@@ -285,6 +310,9 @@ static APIRET APIENTRY diveDone( VOID )
     if( m_ulBufferNumber != 0 )
     {
         m_pfnDiveFreeImageBuffer( m_hdive, m_ulBufferNumber );
+
+        free( m_pbImgBuf );
+
         m_ulBufferNumber = 0;
     }
 
@@ -321,20 +349,24 @@ static APIRET APIENTRY diveUnlockBuffer( VOID )
 
 static APIRET APIENTRY diveSetup( PKVASETUP pkvas )
 {
+    ULONG ulStride;
     ULONG rc;
 
     if( m_ulBufferNumber != 0 )
+    {
         m_pfnDiveFreeImageBuffer( m_hdive, m_ulBufferNumber );
 
-    rc = m_pfnDiveAllocImageBuffer( m_hdive, &m_ulBufferNumber, pkvas->fccSrcColor,
-                                    pkvas->szlSrcSize.cx, pkvas->szlSrcSize.cy,
-                                    0, 0 );
-    if( rc )
-    {
-        m_ulBufferNumber = 0;
+        free( m_pbImgBuf );
 
-        return rc;
+        m_ulBufferNumber = 0;
     }
+
+    ulStride = calcStride( pkvas->szlSrcSize.cx, pkvas->fccSrcColor );
+    m_pbImgBuf = malloc( ulStride * pkvas->szlSrcSize.cy );
+
+    m_pfnDiveAllocImageBuffer( m_hdive, &m_ulBufferNumber, pkvas->fccSrcColor,
+                               pkvas->szlSrcSize.cx, pkvas->szlSrcSize.cy,
+                               ulStride, m_pbImgBuf );
 
     m_sb.ulStructLen       = sizeof( SETUP_BLITTER );
     m_sb.fccSrcColorFormat = pkvas->fccSrcColor;
@@ -349,6 +381,8 @@ static APIRET APIENTRY diveSetup( PKVASETUP pkvas )
     if( rc )
     {
         m_pfnDiveFreeImageBuffer( m_hdive, m_ulBufferNumber );
+
+        free( m_pbImgBuf );
 
         m_ulBufferNumber = 0;
     }
