@@ -298,10 +298,16 @@ static MRESULT EXPENTRY vmanNewWindowProc( HWND hwnd, ULONG msg, MPARAM mp1, MPA
         case WM_REALIZEPALETTE :
             return 0;
 
+        // Sometimes WM_VRNENABLED is not sent, instead only WM_VRNDISABLED
+        // is sent. So an image is not updated. To work around this, set
+        // m_isVRNEnabled to TRUE when receiving WM_SIZE, WM_MOVE and
+        // WM_PAINT as well as WM_VRNENABLED
+        case WM_SIZE :
         // workaround for Mozilla plugin
         case WM_MOVE :
         case WM_PAINT :
             destSetup();
+            m_isVRNEnabled = TRUE;
 
             break;  // fall through to old window proc
     }
