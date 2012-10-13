@@ -464,7 +464,7 @@ static APIRET APIENTRY vmanUnlockBuffer( VOID )
     ULONG      rc = KVAE_NO_ERROR;
 
     if( !m_isVRNEnabled || !m_isBlitAllowed )
-        return KVAE_NO_ERROR;
+        goto exit_end_image_src;
 
     if( m_ulDstBufNum != 0 )
     {
