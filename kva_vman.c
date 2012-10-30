@@ -452,6 +452,14 @@ static APIRET APIENTRY vmanLockBuffer( PPVOID ppBuffer, PULONG pulBPL )
                                             ppBuffer, pulBPL, &ulScanLines );
 }
 
+// Using a dest buffer got from DiveBeginImageBufferAccess() can cause
+// DiveBeginImageBufferAccess() for a source buffer, that is,
+// vmanLockBuffer() to fail. To avoid this, use a buffer associated to DIVE
+// directly. This occurs on VLC fullscreen mode on eComStation v2.1 on
+// VirtualBox 4.1.22.
+// To confirm this problem, define the following macro.
+//#define USE_DST_BUFFER_FROM_DIVE
+
 static APIRET APIENTRY vmanUnlockBuffer( VOID )
 {
     PBYTE      pBits;
@@ -480,11 +488,16 @@ static APIRET APIENTRY vmanUnlockBuffer( VOID )
         if( rc )
             goto exit_end_image_src;
 
+#ifdef USE_DST_BUFFER_FROM_DIVE
         rc = m_pfnDiveBeginImageBufferAccess( m_hdive, m_ulDstBufNum,
                                               &pBits, &ulBytesPerLine,
                                               &ulScanLines );
         if( rc )
             goto exit_end_image_src;
+#else
+        ulBytesPerLine = calcStride( m_brDst.ulXExt, m_sb.fccDstColorFormat );
+        pBits          = m_pbDstImgBuf;
+#endif
 
         ulWidth  = m_brDst.ulXExt;
         ulHeight = m_brDst.ulYExt;
@@ -572,8 +585,10 @@ static APIRET APIENTRY vmanUnlockBuffer( VOID )
     free( pbrDst );
     free( pptlSrcOrg );
 
+#ifdef USE_DST_BUFFER_FROM_DIVE
     if( m_ulDstBufNum != 0 )
         m_pfnDiveEndImageBufferAccess( m_hdive, m_ulDstBufNum );
+#endif
 
 exit_end_image_src :
     m_pfnDiveEndImageBufferAccess( m_hdive, m_ulSrcBufNum );
