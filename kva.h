@@ -98,6 +98,8 @@ typedef struct tagKVASETUP
     ULONG       fccSrcColor;      //image format
     BOOL        fInvert;          //image invert, only for DIVE
     BOOL        fDither;          //image dither, only for DIVE
+    RECTL       rclDstRect;       //destination rectangle, top-left is (0,0)
+                                  //if empty, this is calculated automatically
 } KVASETUP, *PKVASETUP;
 
 typedef struct tagKVACAPS

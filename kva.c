@@ -48,6 +48,7 @@ ULONG g_ulKeyColor = -1;
 static ULONG    m_ulRatio = KVAR_NONE;
 static ULONG    m_ulAspectWidth = -1;
 static ULONG    m_ulAspectHeight = -1;
+static RECTL    m_rclDstRect = { 0, };
 
 static BOOL     m_fKVAInited = FALSE;
 static BOOL     m_fLocked = FALSE;
@@ -269,6 +270,7 @@ APIRET APIENTRY kvaSetup( PKVASETUP pkvas )
     m_ulRatio = pkvas->ulRatio;
     m_ulAspectWidth = pkvas->ulAspectWidth;
     m_ulAspectHeight = pkvas->ulAspectHeight;
+    m_rclDstRect = pkvas->rclDstRect;
 
     rc = g_pfnSetup( pkvas );
 
@@ -326,6 +328,20 @@ APIRET APIENTRY kvaAdjustDstRect( PRECTL prclSrc, PRECTL prclDst )
         return KVAE_INVALID_PARAMETER;
 
     WinQueryWindowRect( g_hwndKVA, prclDst );
+
+    if( m_rclDstRect.xLeft != m_rclDstRect.xRight &&
+        m_rclDstRect.yTop != m_rclDstRect.yBottom )
+    {
+        // calculate a window height
+        cyDst = prclDst->yTop - prclDst->yBottom;
+
+        prclDst->xLeft = m_rclDstRect.xLeft;
+        prclDst->yBottom = cyDst - m_rclDstRect.yBottom; // invert Y
+        prclDst->xRight = m_rclDstRect.xRight;
+        prclDst->yTop = cyDst - m_rclDstRect.yTop; // invert Y
+
+        return KVAE_NO_ERROR;
+    }
 
     cxDst = prclDst->xRight;
     cyDst = prclDst->yTop;
