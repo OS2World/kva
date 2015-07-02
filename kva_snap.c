@@ -37,7 +37,7 @@ typedef struct _SNAPSETUP
     RECTL rclSrcRect;       // top-left is (0,0)
 } SNAPSETUP, *PSNAPSETUP;
 
-static SNAPSETUP    m_ss = { 0, };
+static SNAPSETUP    m_ss = {{ 0, }, };
 
 static HMODULE  m_swHandle = NULLHANDLE;
 
