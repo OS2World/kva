@@ -17,6 +17,7 @@
     Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
+#define INCL_DOS
 #include <os2.h>
 
 #include <mmioos2.h>
@@ -95,12 +96,17 @@ static int isHelperAvailable( VOID )
     HFILE hSDDHelp;
     ULONG ulAction;
 
+    HMODULE hmod;
+
     if( DosOpen( "SDDHELP$", &hSDDHelp, &ulAction, 0, 0,
                  FILE_OPEN, OPEN_SHARE_DENYNONE | OPEN_ACCESS_READWRITE,
                  NULL ))
         return 0;
 
     DosClose( hSDDHelp );
+
+    if (DosQueryModuleHandle("sddgradd", &hmod))
+        return 0;
 
     return 1;
 }
