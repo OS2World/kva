@@ -482,7 +482,9 @@ static APIRET APIENTRY vmanUnlockBuffer( VOID )
 
     if( m_ulDstBufNum != 0 )
     {
+#ifdef USE_DST_BUFFER_FROM_DIVE
         ULONG ulScanLines;
+#endif
 
         rc = m_pfnDiveBlitImage( m_hdive, m_ulSrcBufNum, m_ulDstBufNum );
         if( rc )
