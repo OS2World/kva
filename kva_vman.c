@@ -318,7 +318,7 @@ static MRESULT EXPENTRY vmanNewWindowProc( HWND hwnd, ULONG msg, MPARAM mp1, MPA
     return m_pfnwpOld( hwnd, msg, mp1, mp2 );
 }
 
-APIRET APIENTRY vmanInit( HWND hwnd, ULONG ulKeyColor, PKVAAPIS pkva )
+APIRET APIENTRY kvaVmanInit( HWND hwnd, ULONG ulKeyColor, PKVAAPIS pkva )
 {
     INITPROCOUT ipc;
     ULONG       rc;

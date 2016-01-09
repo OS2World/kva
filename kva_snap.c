@@ -206,7 +206,7 @@ static MRESULT EXPENTRY snapNewWindowProc( HWND hwnd, ULONG msg, MPARAM mp1, MPA
     return m_pfnwpOld( hwnd, msg, mp1, mp2 );
 }
 
-APIRET APIENTRY snapInit( HWND hwnd, ULONG ulKeyColor, PKVAAPIS pkva )
+APIRET APIENTRY kvaSnapInit( HWND hwnd, ULONG ulKeyColor, PKVAAPIS pkva )
 {
     CHAR        szClassName[ 80 ];
     CLASSINFO   ci;

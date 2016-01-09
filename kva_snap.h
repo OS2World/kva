@@ -24,7 +24,7 @@
 extern "C" {
 #endif
 
-APIRET APIENTRY snapInit( HWND hwnd, ULONG ulKeyColor, PKVAAPIS pkva );
+APIRET APIENTRY kvaSnapInit( HWND hwnd, ULONG ulKeyColor, PKVAAPIS pkva );
 
 #ifdef __cplusplus
 }

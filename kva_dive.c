@@ -246,7 +246,7 @@ static MRESULT EXPENTRY diveNewWindowProc( HWND hwnd, ULONG msg, MPARAM mp1, MPA
     return m_pfnwpOld( hwnd, msg, mp1, mp2 );
 }
 
-APIRET APIENTRY diveInit( HWND hwnd, ULONG ulKeyColor, PKVAAPIS pkva )
+APIRET APIENTRY kvaDiveInit( HWND hwnd, ULONG ulKeyColor, PKVAAPIS pkva )
 {
     ULONG   rc;
 

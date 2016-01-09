@@ -139,7 +139,7 @@ static MRESULT EXPENTRY woNewWindowProc( HWND hwnd, ULONG msg, MPARAM mp1, MPARA
     return m_pfnwpOld( hwnd, msg, mp1, mp2 );
 }
 
-APIRET APIENTRY woInit( HWND hwnd, ULONG ulKeyColor, PKVAAPIS pkva )
+APIRET APIENTRY kvaWoInit( HWND hwnd, ULONG ulKeyColor, PKVAAPIS pkva )
 {
     BOOL        fWOInited = FALSE;
     HWATTRIBUTE attr;

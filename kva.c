@@ -61,10 +61,10 @@ APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
         ULONG mode;
         DECLARE_PFN( APIRET, APIENTRY, init, ( HWND, ULONG, PKVAAPIS ));
     } initRoutines[] = {
-        { KVAM_SNAP, snapInit },
-        { KVAM_WO, woInit },
-        { KVAM_VMAN, vmanInit },
-        { KVAM_DIVE, diveInit },
+        { KVAM_SNAP, kvaSnapInit },
+        { KVAM_WO, kvaWoInit },
+        { KVAM_VMAN, kvaVmanInit },
+        { KVAM_DIVE, kvaDiveInit },
         { 0, NULL },
     }, *initRoutine;
 
