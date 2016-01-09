@@ -1,0 +1,13 @@
+kvaInit
+kvaAdjustDstRect
+kvaDone
+kvaLockBuffer
+kvaUnlockBuffer
+kvaSetup
+kvaCaps
+kvaClearRect
+kvaQueryAttr
+kvaSetAttr
+kvaResetAttr
+kvaDisableScreenSaver
+kvaEnableScreenSaver
