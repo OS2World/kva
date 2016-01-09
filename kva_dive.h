@@ -24,7 +24,7 @@
 extern "C" {
 #endif
 
-APIRET APIENTRY diveInit( VOID );
+APIRET APIENTRY diveInit( HWND hwnd, ULONG ulKeyColor, PKVAAPIS pkva );
 
 #ifdef __cplusplus
 }

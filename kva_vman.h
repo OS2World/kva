@@ -24,7 +24,7 @@
 extern "C" {
 #endif
 
-APIRET APIENTRY vmanInit( VOID );
+APIRET APIENTRY vmanInit( HWND hwnd, ULONG ulKeyColor, PKVAAPIS pkva );
 
 #ifdef __cplusplus
 }

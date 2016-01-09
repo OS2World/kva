@@ -34,6 +34,8 @@
 #include "kva_internal.h"
 #include "kva_wo.h"
 
+static HWND         m_hwndKVA = NULLHANDLE;
+
 static HMODULE      m_HWVideoHandle = NULLHANDLE;
 static HWVIDEOCAPS  m_hwvc = { 0 };
 static HWVIDEOSETUP m_hwvs = { 0 };
@@ -137,7 +139,7 @@ static MRESULT EXPENTRY woNewWindowProc( HWND hwnd, ULONG msg, MPARAM mp1, MPARA
     return m_pfnwpOld( hwnd, msg, mp1, mp2 );
 }
 
-APIRET APIENTRY woInit( VOID )
+APIRET APIENTRY woInit( HWND hwnd, ULONG ulKeyColor, PKVAAPIS pkva )
 {
     BOOL        fWOInited = FALSE;
     HWATTRIBUTE attr;
@@ -210,33 +212,34 @@ APIRET APIENTRY woInit( VOID )
             m_aulAttr[ KVAA_HUE ] = i;
     }
 
-    WinQueryClassName( g_hwndKVA, sizeof( szClassName ), szClassName );
-    WinQueryClassInfo( WinQueryAnchorBlock( g_hwndKVA ), szClassName, &ci );
+    m_hwndKVA = hwnd;
+    m_hwvs.ulKeyColor = ulKeyColor;
+
+    WinQueryClassName( m_hwndKVA, sizeof( szClassName ), szClassName );
+    WinQueryClassInfo( WinQueryAnchorBlock( m_hwndKVA ), szClassName, &ci );
 
     if( !( ci.flClassStyle & CS_MOVENOTIFY ))
     {
         ci.flClassStyle |= CS_MOVENOTIFY;
 
-        WinRegisterClass( WinQueryAnchorBlock( g_hwndKVA ),
+        WinRegisterClass( WinQueryAnchorBlock( m_hwndKVA ),
                           szClassName,
                           ci.pfnWindowProc,
                           ci.flClassStyle,
                           ci.cbWindowData );
     }
 
-    m_pfnwpOld = WinSubclassWindow( g_hwndKVA, woNewWindowProc );
+    m_pfnwpOld = WinSubclassWindow( m_hwndKVA, woNewWindowProc );
 
     if( m_pfnwpOld )
     {
-        g_pfnDone = woDone;
-        g_pfnLockBuffer = woLockBuffer;
-        g_pfnUnlockBuffer = woUnlockBuffer;
-        g_pfnSetup = woSetup;
-        g_pfnCaps = woCaps;
-        g_pfnQueryAttr = woQueryAttr;
-        g_pfnSetAttr = woSetAttr;
-
-        m_hwvs.ulKeyColor = g_ulKeyColor;
+        pkva->pfnDone = woDone;
+        pkva->pfnLockBuffer = woLockBuffer;
+        pkva->pfnUnlockBuffer = woUnlockBuffer;
+        pkva->pfnSetup = woSetup;
+        pkva->pfnCaps = woCaps;
+        pkva->pfnQueryAttr = woQueryAttr;
+        pkva->pfnSetAttr = woSetAttr;
     }
     else
     {
@@ -267,7 +270,7 @@ static APIRET APIENTRY woDone( VOID )
 
     free( m_hwvc.fccColorType );
 
-    WinSubclassWindow( g_hwndKVA, m_pfnwpOld );
+    WinSubclassWindow( m_hwndKVA, m_pfnwpOld );
 
     rc = m_pfnHWVIDEOClose();
 
@@ -299,7 +302,7 @@ static APIRET APIENTRY woSetup( PKVASETUP pkvas )
     m_hwvs.ulSrcPitch  = ( m_hwvs.szlSrcSize.cx * 2 + m_hwvc.ulScanAlign ) & ~m_hwvc.ulScanAlign;
 
     kvaAdjustDstRect( &m_hwvs.rctlSrcRect, &m_hwvs.rctlDstRect );
-    WinMapWindowPoints( g_hwndKVA, HWND_DESKTOP, ( PPOINTL )&m_hwvs.rctlDstRect, 2 );
+    WinMapWindowPoints( m_hwndKVA, HWND_DESKTOP, ( PPOINTL )&m_hwvs.rctlDstRect, 2 );
 
     if( m_hwvs.rctlDstRect.xLeft == m_hwvs.rctlDstRect.xRight  ||
         m_hwvs.rctlDstRect.yTop == m_hwvs.rctlDstRect.yBottom )

@@ -30,16 +30,19 @@ exter "C" {
 #define DECLARE_PFN( ret, callconv, name, arg ) ret ( callconv * name )arg
 #endif
 
-extern DECLARE_PFN( APIRET, APIENTRY, g_pfnDone, ( VOID ));
-extern DECLARE_PFN( APIRET, APIENTRY, g_pfnLockBuffer, ( PPVOID ppBuffer, PULONG pulBPL ));
-extern DECLARE_PFN( APIRET, APIENTRY, g_pfnUnlockBuffer, ( VOID ));
-extern DECLARE_PFN( APIRET, APIENTRY, g_pfnSetup, ( PKVASETUP pkvas ));
-extern DECLARE_PFN( APIRET, APIENTRY, g_pfnCaps, ( PKVACAPS pkvac ));
-extern DECLARE_PFN( APIRET, APIENTRY, g_pfnQueryAttr, ( ULONG ulAttr, PULONG pulValue ));
-extern DECLARE_PFN( APIRET, APIENTRY, g_pfnSetAttr, ( ULONG ulAttr, PULONG pulValue ));
-
-extern HWND  g_hwndKVA;
-extern ULONG g_ulKeyColor;
+typedef struct tagKVAAPIS
+{
+    DECLARE_PFN( APIRET, APIENTRY, pfnDone, ( VOID ));
+    DECLARE_PFN( APIRET, APIENTRY,
+                 pfnLockBuffer, ( PPVOID ppBuffer, PULONG pulBPL ));
+    DECLARE_PFN( APIRET, APIENTRY, pfnUnlockBuffer, ( VOID ));
+    DECLARE_PFN( APIRET, APIENTRY, pfnSetup, ( PKVASETUP pkvas ));
+    DECLARE_PFN( APIRET, APIENTRY, pfnCaps, ( PKVACAPS pkvac ));
+    DECLARE_PFN( APIRET, APIENTRY,
+                 pfnQueryAttr, ( ULONG ulAttr, PULONG pulValue ));
+    DECLARE_PFN( APIRET, APIENTRY,
+                 pfnSetAttr, ( ULONG ulAttr, PULONG pulValue ));
+} KVAAPIS, *PKVAAPIS;
 
 #ifdef __cplusplus
 }

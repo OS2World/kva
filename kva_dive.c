@@ -35,6 +35,9 @@
 
 #define calcStride( width, fcc ) ((( width ) * fcc2bpp( fcc ) + 7 ) & ~7)
 
+static HWND  m_hwndKVA = NULLHANDLE;
+static ULONG m_ulKeyColor = -1;
+
 static HDIVE            m_hdive = NULLHANDLE;
 static ULONG            m_ulBufferNumber = 0;
 static PBYTE            m_pbImgBuf;
@@ -133,12 +136,12 @@ static APIRET destSetup( VOID )
     PRECTL          prcl = NULL;
     ULONG           rc = KVAE_NO_ERROR;
 
-    hps = WinGetPS( g_hwndKVA );
+    hps = WinGetPS( m_hwndKVA );
 
     hrgn = GpiCreateRegion( hps, 0L, NULL );
     if( hrgn )
     {
-        WinQueryVisibleRegion( g_hwndKVA, hrgn );
+        WinQueryVisibleRegion( m_hwndKVA, hrgn );
 
         rgnCtl.ircStart     = 1;
         rgnCtl.ulDirection  = RECTDIR_LFRT_TOPBOT;
@@ -158,12 +161,12 @@ static APIRET destSetup( VOID )
             POINTL  ptl;
             RECTL   rclSrc, rclDst;
 
-            WinQueryWindowPos( g_hwndKVA, &swp );
+            WinQueryWindowPos( m_hwndKVA, &swp );
 
             ptl.x = swp.x;
             ptl.y = swp.y;
 
-            WinMapWindowPoints( WinQueryWindow( g_hwndKVA, QW_PARENT ),
+            WinMapWindowPoints( WinQueryWindow( m_hwndKVA, QW_PARENT ),
                                 HWND_DESKTOP,
                                 &ptl, 1 );
 
@@ -173,7 +176,7 @@ static APIRET destSetup( VOID )
             rclSrc.yTop    = rclSrc.yBottom + m_sb.ulSrcHeight;
 
             kvaAdjustDstRect( &rclSrc, &rclDst );
-            WinMapWindowPoints( g_hwndKVA, HWND_DESKTOP, ( PPOINTL )&rclDst, 2 );
+            WinMapWindowPoints( m_hwndKVA, HWND_DESKTOP, ( PPOINTL )&rclDst, 2 );
 
             // Tell DIVE about the new settings.
 
@@ -212,7 +215,7 @@ static MRESULT EXPENTRY diveNewWindowProc( HWND hwnd, ULONG msg, MPARAM mp1, MPA
             PRECTL  prcl = ( PRECTL )mp2;
 
             GpiCreateLogColorTable( hpsFrame, 0, LCOLF_RGB, 0, 0, NULL );
-            WinFillRect( hpsFrame, prcl, g_ulKeyColor);
+            WinFillRect( hpsFrame, prcl, m_ulKeyColor);
 
             return FALSE;
         }
@@ -243,7 +246,7 @@ static MRESULT EXPENTRY diveNewWindowProc( HWND hwnd, ULONG msg, MPARAM mp1, MPA
     return m_pfnwpOld( hwnd, msg, mp1, mp2 );
 }
 
-APIRET APIENTRY diveInit( VOID )
+APIRET APIENTRY diveInit( HWND hwnd, ULONG ulKeyColor, PKVAAPIS pkva )
 {
     ULONG   rc;
 
@@ -265,19 +268,22 @@ APIRET APIENTRY diveInit( VOID )
     if( rc )
         goto exit_error;
 
-    m_pfnwpOld = WinSubclassWindow( g_hwndKVA, diveNewWindowProc );
+    m_hwndKVA = hwnd;
+    m_ulKeyColor = ulKeyColor;
+
+    m_pfnwpOld = WinSubclassWindow( m_hwndKVA, diveNewWindowProc );
 
     if( m_pfnwpOld )
     {
-        g_pfnDone = diveDone;
-        g_pfnLockBuffer = diveLockBuffer;
-        g_pfnUnlockBuffer = diveUnlockBuffer;
-        g_pfnSetup = diveSetup;
-        g_pfnCaps = diveCaps;
-        g_pfnQueryAttr = diveQueryAttr;
-        g_pfnSetAttr = diveSetAttr;
+        pkva->pfnDone = diveDone;
+        pkva->pfnLockBuffer = diveLockBuffer;
+        pkva->pfnUnlockBuffer = diveUnlockBuffer;
+        pkva->pfnSetup = diveSetup;
+        pkva->pfnCaps = diveCaps;
+        pkva->pfnQueryAttr = diveQueryAttr;
+        pkva->pfnSetAttr = diveSetAttr;
 
-        WinSetVisibleRegionNotify( g_hwndKVA, TRUE );
+        WinSetVisibleRegionNotify( m_hwndKVA, TRUE );
     }
     else
     {
@@ -303,9 +309,9 @@ static APIRET APIENTRY diveDone( VOID )
 {
     ULONG rc;
 
-    WinSetVisibleRegionNotify( g_hwndKVA, FALSE );
+    WinSetVisibleRegionNotify( m_hwndKVA, FALSE );
 
-    WinSubclassWindow( g_hwndKVA, m_pfnwpOld );
+    WinSubclassWindow( m_hwndKVA, m_pfnwpOld );
 
     if( m_ulBufferNumber != 0 )
     {

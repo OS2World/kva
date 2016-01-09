@@ -38,6 +38,9 @@
 
 static GDDMODEINFO  m_mi;
 
+static HWND  m_hwndKVA    = NULLHANDLE;
+static ULONG m_ulKeyColor = -1;
+
 static BOOL m_isVRNEnabled  = TRUE;
 static BOOL m_isBlitAllowed = FALSE;
 
@@ -173,7 +176,7 @@ static APIRET destSetup( VOID )
         m_ulDstBufNum = 0;
     }
 
-    hps = WinGetPS( g_hwndKVA );
+    hps = WinGetPS( m_hwndKVA );
 
     hrgn = GpiCreateRegion( hps, 0L, NULL );
     if( hrgn )
@@ -181,7 +184,7 @@ static APIRET destSetup( VOID )
         RECTL rclSrc, rclDst;
         HRGN  hrgnDst;
 
-        WinQueryVisibleRegion( g_hwndKVA, hrgn );
+        WinQueryVisibleRegion( m_hwndKVA, hrgn );
 
         rclSrc.xLeft   = m_sb.ulSrcPosX;
         rclSrc.yBottom = m_sb.ulSrcPosY;
@@ -207,10 +210,10 @@ static APIRET destSetup( VOID )
         */
         if( prcl && GpiQueryRegionRects( hps, hrgn, NULL, &rgnCtl, prcl ))
         {
-            WinMapWindowPoints( g_hwndKVA, HWND_DESKTOP,
+            WinMapWindowPoints( m_hwndKVA, HWND_DESKTOP,
                                 ( PPOINTL )prcl, rgnCtl.crcReturned * 2 );
 
-            WinMapWindowPoints( g_hwndKVA, HWND_DESKTOP,
+            WinMapWindowPoints( m_hwndKVA, HWND_DESKTOP,
                                 ( PPOINTL )&rclDst, 2 );
 
             m_brDst.ulXOrg = rclDst.xLeft;
@@ -279,7 +282,7 @@ static MRESULT EXPENTRY vmanNewWindowProc( HWND hwnd, ULONG msg, MPARAM mp1, MPA
             PRECTL  prcl = ( PRECTL )mp2;
 
             GpiCreateLogColorTable( hpsFrame, 0, LCOLF_RGB, 0, 0, NULL );
-            WinFillRect( hpsFrame, prcl, g_ulKeyColor);
+            WinFillRect( hpsFrame, prcl, m_ulKeyColor);
 
             return FALSE;
         }
@@ -315,7 +318,7 @@ static MRESULT EXPENTRY vmanNewWindowProc( HWND hwnd, ULONG msg, MPARAM mp1, MPA
     return m_pfnwpOld( hwnd, msg, mp1, mp2 );
 }
 
-APIRET APIENTRY vmanInit( VOID )
+APIRET APIENTRY vmanInit( HWND hwnd, ULONG ulKeyColor, PKVAAPIS pkva )
 {
     INITPROCOUT ipc;
     ULONG       rc;
@@ -368,19 +371,22 @@ APIRET APIENTRY vmanInit( VOID )
     if( rc )
         goto exit_term_proc;
 
-    m_pfnwpOld = WinSubclassWindow( g_hwndKVA, vmanNewWindowProc );
+    m_hwndKVA = hwnd;
+    m_ulKeyColor = ulKeyColor;
+
+    m_pfnwpOld = WinSubclassWindow( m_hwndKVA, vmanNewWindowProc );
 
     if( m_pfnwpOld )
     {
-        g_pfnDone = vmanDone;
-        g_pfnLockBuffer = vmanLockBuffer;
-        g_pfnUnlockBuffer = vmanUnlockBuffer;
-        g_pfnSetup = vmanSetup;
-        g_pfnCaps = vmanCaps;
-        g_pfnQueryAttr = vmanQueryAttr;
-        g_pfnSetAttr = vmanSetAttr;
+        pkva->pfnDone = vmanDone;
+        pkva->pfnLockBuffer = vmanLockBuffer;
+        pkva->pfnUnlockBuffer = vmanUnlockBuffer;
+        pkva->pfnSetup = vmanSetup;
+        pkva->pfnCaps = vmanCaps;
+        pkva->pfnQueryAttr = vmanQueryAttr;
+        pkva->pfnSetAttr = vmanSetAttr;
 
-        WinSetVisibleRegionNotify( g_hwndKVA, TRUE );
+        WinSetVisibleRegionNotify( m_hwndKVA, TRUE );
     }
     else
     {
@@ -407,9 +413,9 @@ exit_free_vman :
 
 static APIRET APIENTRY vmanDone( VOID )
 {
-    WinSetVisibleRegionNotify( g_hwndKVA, FALSE );
+    WinSetVisibleRegionNotify( m_hwndKVA, FALSE );
 
-    WinSubclassWindow( g_hwndKVA, m_pfnwpOld );
+    WinSubclassWindow( m_hwndKVA, m_pfnwpOld );
 
     m_lVisibleRects = 0;
 
@@ -532,7 +538,7 @@ static APIRET APIENTRY vmanUnlockBuffer( VOID )
     rclSrcBounds.xRight  = rclSrcBounds.xLeft + m_brDst.ulXExt;
     rclSrcBounds.yBottom = rclSrcBounds.yTop - m_brDst.ulYExt;
 
-    hab = WinQueryAnchorBlock( g_hwndKVA );
+    hab = WinQueryAnchorBlock( m_hwndKVA );
 
     WinSetRectEmpty( hab, &rclDstBounds );
 

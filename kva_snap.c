@@ -35,6 +35,8 @@
 typedef struct _SNAPSETUP
 {
     RECTL rclSrcRect;       // top-left is (0,0)
+    HWND  hwndKVA;
+    ULONG ulKeyColor;
 } SNAPSETUP, *PSNAPSETUP;
 
 static SNAPSETUP    m_ss = {{ 0, }, };
@@ -166,7 +168,7 @@ static MRESULT EXPENTRY snapNewWindowProc( HWND hwnd, ULONG msg, MPARAM mp1, MPA
             PRECTL  prcl = ( PRECTL )mp2;
 
             GpiCreateLogColorTable( hpsFrame, 0, LCOLF_RGB, 0, 0, NULL );
-            WinFillRect( hpsFrame, prcl, g_ulKeyColor);
+            WinFillRect( hpsFrame, prcl, m_ss.ulKeyColor);
 
             return FALSE;
         }
@@ -204,7 +206,7 @@ static MRESULT EXPENTRY snapNewWindowProc( HWND hwnd, ULONG msg, MPARAM mp1, MPA
     return m_pfnwpOld( hwnd, msg, mp1, mp2 );
 }
 
-APIRET APIENTRY snapInit( VOID )
+APIRET APIENTRY snapInit( HWND hwnd, ULONG ulKeyColor, PKVAAPIS pkva )
 {
     CHAR        szClassName[ 80 ];
     CLASSINFO   ci;
@@ -229,31 +231,34 @@ APIRET APIENTRY snapInit( VOID )
         goto exit_error;
     }
 
-    WinQueryClassName( g_hwndKVA, sizeof( szClassName ), szClassName );
-    WinQueryClassInfo( WinQueryAnchorBlock( g_hwndKVA ), szClassName, &ci );
+    m_ss.hwndKVA = hwnd;
+    m_ss.ulKeyColor = ulKeyColor;
+
+    WinQueryClassName( m_ss.hwndKVA, sizeof( szClassName ), szClassName );
+    WinQueryClassInfo( WinQueryAnchorBlock( m_ss.hwndKVA ), szClassName, &ci );
 
     if( !( ci.flClassStyle & CS_MOVENOTIFY ))
     {
         ci.flClassStyle |= CS_MOVENOTIFY;
 
-        WinRegisterClass( WinQueryAnchorBlock( g_hwndKVA ),
+        WinRegisterClass( WinQueryAnchorBlock( m_ss.hwndKVA ),
                           szClassName,
                           ci.pfnWindowProc,
                           ci.flClassStyle,
                           ci.cbWindowData );
     }
 
-    m_pfnwpOld = WinSubclassWindow( g_hwndKVA, snapNewWindowProc );
+    m_pfnwpOld = WinSubclassWindow( m_ss.hwndKVA, snapNewWindowProc );
 
     if( m_pfnwpOld )
     {
-        g_pfnDone = snapDone;
-        g_pfnLockBuffer = snapLockBuffer;
-        g_pfnUnlockBuffer = snapUnlockBuffer;
-        g_pfnSetup = snapSetup;
-        g_pfnCaps = snapCaps;
-        g_pfnQueryAttr = snapQueryAttr;
-        g_pfnSetAttr = snapSetAttr;
+        pkva->pfnDone = snapDone;
+        pkva->pfnLockBuffer = snapLockBuffer;
+        pkva->pfnUnlockBuffer = snapUnlockBuffer;
+        pkva->pfnSetup = snapSetup;
+        pkva->pfnCaps = snapCaps;
+        pkva->pfnQueryAttr = snapQueryAttr;
+        pkva->pfnSetAttr = snapSetAttr;
     }
     else
     {
@@ -275,7 +280,7 @@ exit_error :
 
 static APIRET APIENTRY snapDone( VOID )
 {
-    WinSubclassWindow( g_hwndKVA, m_pfnwpOld );
+    WinSubclassWindow( m_ss.hwndKVA, m_pfnwpOld );
 
     m_pfnSWDisableVideoOutput();
 
@@ -318,12 +323,12 @@ static APIRET APIENTRY snapSetup( PKVASETUP pkvas )
         return KVAE_CANNOT_ALLOC_VIDEO_BUFFER;
     }
 
-    m_pfnSWSetDstVideoColorKey( g_ulKeyColor );
+    m_pfnSWSetDstVideoColorKey( m_ss.ulKeyColor );
 
     m_ss.rclSrcRect = pkvas->rclSrcRect;
 
     kvaAdjustDstRect( &m_ss.rclSrcRect, &rclDst );
-    WinMapWindowPoints( g_hwndKVA, HWND_DESKTOP, ( PPOINTL )&rclDst, 2 );
+    WinMapWindowPoints( m_ss.hwndKVA, HWND_DESKTOP, ( PPOINTL )&rclDst, 2 );
 
     // SNAP does not like empty rect
     if( rclDst.xLeft == rclDst.xRight )

@@ -34,16 +34,10 @@
 
 #define KVA_SHARED_MEM_NAME "\\SHAREMEM\\KVA\\HWINUSE"
 
-DECLARE_PFN( APIRET, APIENTRY, g_pfnDone, ( VOID ));
-DECLARE_PFN( APIRET, APIENTRY, g_pfnLockBuffer, ( PPVOID ppBuffer, PULONG pulBPL ));
-DECLARE_PFN( APIRET, APIENTRY, g_pfnUnlockBuffer, ( VOID ));
-DECLARE_PFN( APIRET, APIENTRY, g_pfnSetup, ( PKVASETUP pkvas ));
-DECLARE_PFN( APIRET, APIENTRY, g_pfnCaps, ( PKVACAPS pkvac ));
-DECLARE_PFN( APIRET, APIENTRY, g_pfnQueryAttr, ( ULONG ulAttr, PULONG pulValue ));
-DECLARE_PFN( APIRET, APIENTRY, g_pfnSetAttr, ( ULONG ulAttr, PULONG pulValue ));
+static KVAAPIS  m_kva = { NULL, };
 
-HWND  g_hwndKVA = NULLHANDLE;
-ULONG g_ulKeyColor = -1;
+static HWND     m_hwndKVA = NULLHANDLE;
+static ULONG    m_ulKeyColor = -1;
 
 static ULONG    m_ulRatio = KVAR_NONE;
 static ULONG    m_ulAspectWidth = -1;
@@ -79,13 +73,10 @@ APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
     m_pfnSSCore_TempDisable = NULL;
     m_pfnSSCore_TempEnable = NULL;
 
-    g_pfnDone = NULL;
-    g_pfnLockBuffer = NULL;
-    g_pfnUnlockBuffer = NULL;
-    g_pfnSetup = NULL;
+    memset( &m_kva, 0, sizeof( m_kva ));
 
-    g_hwndKVA = NULLHANDLE;
-    g_ulKeyColor = -1;
+    m_hwndKVA = NULLHANDLE;
+    m_ulKeyColor = -1;
 
     rc = KVAE_INVALID_PARAMETER;
 
@@ -114,12 +105,12 @@ APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
         *m_pfHWInUse = FALSE;
     }
 
-    g_hwndKVA = hwnd;
-    g_ulKeyColor = ulKeyColor;
+    m_hwndKVA = hwnd;
+    m_ulKeyColor = ulKeyColor;
 
     if( kvaMode == KVAM_SNAP || kvaMode == KVAM_AUTO )
     {
-        rc = snapInit();
+        rc = snapInit( hwnd, ulKeyColor, &m_kva );
         if( rc )
         {
             if( kvaMode != KVAM_AUTO )
@@ -131,7 +122,7 @@ APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
 
     if( kvaMode == KVAM_WO || kvaMode == KVAM_AUTO )
     {
-        rc = woInit();
+        rc = woInit( hwnd, ulKeyColor, &m_kva );
         if( rc )
         {
             if( kvaMode != KVAM_AUTO )
@@ -143,7 +134,7 @@ APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
 
     if( kvaMode == KVAM_VMAN || kvaMode == KVAM_AUTO )
     {
-        rc = vmanInit();
+        rc = vmanInit( hwnd, ulKeyColor, &m_kva );
         if( rc )
         {
             if( kvaMode != KVAM_AUTO )
@@ -155,7 +146,7 @@ APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
 
     if( kvaMode == KVAM_DIVE || kvaMode == KVAM_AUTO )
     {
-        rc = diveInit();
+        rc = diveInit( hwnd, ulKeyColor, &m_kva );
         if( rc )
         {
             if( kvaMode != KVAM_AUTO )
@@ -200,7 +191,7 @@ APIRET APIENTRY kvaDone( VOID )
     if( !m_fKVAInited )
         return KVAE_NOT_INITIALIZED;
 
-    rc = g_pfnDone();
+    rc = m_kva.pfnDone();
     if( rc )
         return rc;
 
@@ -229,7 +220,7 @@ APIRET APIENTRY kvaLockBuffer( PPVOID ppBuffer, PULONG pulBPL )
     if( ppBuffer == NULL || pulBPL == NULL )
         return KVAE_INVALID_PARAMETER;
 
-    rc = g_pfnLockBuffer( ppBuffer, pulBPL );
+    rc = m_kva.pfnLockBuffer( ppBuffer, pulBPL );
     if( rc )
         return rc;
 
@@ -248,7 +239,7 @@ APIRET APIENTRY kvaUnlockBuffer( VOID )
     if( !m_fLocked )
         return KVAE_NOT_LOCKED;
 
-    rc = g_pfnUnlockBuffer();
+    rc = m_kva.pfnUnlockBuffer();
     if( rc )
         return rc;
 
@@ -272,7 +263,7 @@ APIRET APIENTRY kvaSetup( PKVASETUP pkvas )
     m_ulAspectHeight = pkvas->ulAspectHeight;
     m_rclDstRect = pkvas->rclDstRect;
 
-    rc = g_pfnSetup( pkvas );
+    rc = m_kva.pfnSetup( pkvas );
 
     kvaClearRect( NULL );
 
@@ -289,7 +280,7 @@ APIRET APIENTRY kvaCaps( PKVACAPS pkvac )
 
     memset( pkvac, 0, sizeof( PKVACAPS ));
 
-    return g_pfnCaps( pkvac );
+    return m_kva.pfnCaps( pkvac );
 }
 
 APIRET APIENTRY kvaClearRect( PRECTL prcl )
@@ -300,15 +291,15 @@ APIRET APIENTRY kvaClearRect( PRECTL prcl )
     if( !m_fKVAInited )
         return KVAE_NOT_INITIALIZED;
 
-    hps = WinGetPS( g_hwndKVA );
+    hps = WinGetPS( m_hwndKVA );
 
     if( !prcl )
     {
         prcl = &rcl;
-        WinQueryWindowRect( g_hwndKVA, prcl );
+        WinQueryWindowRect( m_hwndKVA, prcl );
     }
     GpiCreateLogColorTable( hps, 0, LCOLF_RGB, 0, 0, NULL );
-    WinFillRect( hps, prcl, g_ulKeyColor );
+    WinFillRect( hps, prcl, m_ulKeyColor );
 
     WinReleasePS( hps );
 
@@ -327,7 +318,7 @@ APIRET APIENTRY kvaAdjustDstRect( PRECTL prclSrc, PRECTL prclDst )
     if(( !prclSrc && m_ulRatio == KVAR_ORIGINAL ) || !prclDst )
         return KVAE_INVALID_PARAMETER;
 
-    WinQueryWindowRect( g_hwndKVA, prclDst );
+    WinQueryWindowRect( m_hwndKVA, prclDst );
 
     if( m_rclDstRect.xLeft != m_rclDstRect.xRight &&
         m_rclDstRect.yTop != m_rclDstRect.yBottom )
@@ -396,7 +387,7 @@ APIRET APIENTRY kvaAdjustDstRect( PRECTL prclSrc, PRECTL prclDst )
     prclDst->xRight = cxDstNew;
     prclDst->yTop = cyDstNew;
 
-    WinOffsetRect( WinQueryAnchorBlock( g_hwndKVA ), prclDst,
+    WinOffsetRect( WinQueryAnchorBlock( m_hwndKVA ), prclDst,
                    ( cxDst - cxDstNew ) / 2, ( cyDst - cyDstNew ) / 2 );
 
     return KVAE_NO_ERROR;
@@ -410,7 +401,7 @@ APIRET APIENTRY kvaQueryAttr( ULONG ulAttr, PULONG pulValue )
     if( !pulValue )
         return KVAE_INVALID_PARAMETER;
 
-    return g_pfnQueryAttr( ulAttr, pulValue );
+    return m_kva.pfnQueryAttr( ulAttr, pulValue );
 }
 
 APIRET APIENTRY kvaSetAttr( ULONG ulAttr, PULONG pulValue )
@@ -421,7 +412,7 @@ APIRET APIENTRY kvaSetAttr( ULONG ulAttr, PULONG pulValue )
     if( !pulValue )
         return KVAE_INVALID_PARAMETER;
 
-    return g_pfnSetAttr( ulAttr, pulValue );
+    return m_kva.pfnSetAttr( ulAttr, pulValue );
 }
 
 APIRET APIENTRY kvaResetAttr( VOID )
