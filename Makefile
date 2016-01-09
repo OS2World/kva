@@ -57,7 +57,7 @@ $(KVADLLDEF) : $(KVADLLSYM)
 $(KVADLLSYM) :
 	# tab
 
-kva.o : kva.c kva.h kva_internal.h kva_dive.h kva_wo.h kva_snap.h
+kva.o : kva.c kva.h kva_internal.h kva_dive.h kva_wo.h kva_snap.h kva_vman.h
 
 kva_dive.o : kva_dive.c kva.h kva_internal.h kva_dive.h
 
