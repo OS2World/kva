@@ -56,6 +56,18 @@ static PFN      m_pfnSSCore_TempEnable = NULL;
 
 APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
 {
+    static struct tagINITROUTINE
+    {
+        ULONG mode;
+        DECLARE_PFN( APIRET, APIENTRY, init, ( HWND, ULONG, PKVAAPIS ));
+    } initRoutines[] = {
+        { KVAM_SNAP, snapInit },
+        { KVAM_WO, woInit },
+        { KVAM_VMAN, vmanInit },
+        { KVAM_DIVE, diveInit },
+        { 0, NULL },
+    }, *initRoutine;
+
     ULONG   rc;
 
     if( m_fKVAInited )
@@ -108,52 +120,19 @@ APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
     m_hwndKVA = hwnd;
     m_ulKeyColor = ulKeyColor;
 
-    if( kvaMode == KVAM_SNAP || kvaMode == KVAM_AUTO )
+    for( initRoutine = initRoutines; initRoutine->init; initRoutine++ )
     {
-        rc = snapInit( hwnd, ulKeyColor, &m_kva );
-        if( rc )
+        if( kvaMode == initRoutine->mode || kvaMode == KVAM_AUTO )
         {
-            if( kvaMode != KVAM_AUTO )
-                return rc;
+            rc = initRoutine->init( m_hwndKVA, m_ulKeyColor, &m_kva );
+            if( rc )
+            {
+                if( kvaMode != KVAM_AUTO )
+                    return rc;
+            }
+            else
+                kvaMode = initRoutine->mode;
         }
-        else
-            kvaMode = KVAM_SNAP;
-    }
-
-    if( kvaMode == KVAM_WO || kvaMode == KVAM_AUTO )
-    {
-        rc = woInit( hwnd, ulKeyColor, &m_kva );
-        if( rc )
-        {
-            if( kvaMode != KVAM_AUTO )
-                return rc;
-        }
-        else
-            kvaMode = KVAM_WO;
-    }
-
-    if( kvaMode == KVAM_VMAN || kvaMode == KVAM_AUTO )
-    {
-        rc = vmanInit( hwnd, ulKeyColor, &m_kva );
-        if( rc )
-        {
-            if( kvaMode != KVAM_AUTO )
-                return rc;
-        }
-        else
-            kvaMode = KVAM_VMAN;
-    }
-
-    if( kvaMode == KVAM_DIVE || kvaMode == KVAM_AUTO )
-    {
-        rc = diveInit( hwnd, ulKeyColor, &m_kva );
-        if( rc )
-        {
-            if( kvaMode != KVAM_AUTO )
-                return rc;
-        }
-        else
-            kvaMode = KVAM_DIVE;
     }
 
     if( !rc )
