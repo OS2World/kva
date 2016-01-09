@@ -5,6 +5,8 @@
 #define INCL_DOSERRORS
 #include <os2.h>
 
+#include <stdio.h>
+
 #include <mmioos2.h>
 #include <fourcc.h>
 
@@ -80,6 +82,10 @@ int main ( int argc, char *argv[] )
   CHAR  szWndClass[] = "MYWINDOW";
   ULONG FrameTime;
   RECTL rect;
+  KVACAPS caps;
+  PSZ pszModeStr[] = {"AUTO", "DIVE", "WO", "SNAP", "VMAN"};
+  CHAR szTitle[80];
+
     hab = WinInitialize (0);
     if (hab == NULLHANDLE)    {
        WinMessageBox (HWND_DESKTOP, HWND_DESKTOP,
@@ -198,6 +204,11 @@ int main ( int argc, char *argv[] )
        WinTerminate (hab);
        return ( -1 );
     }
+
+    kvaCaps(&caps);
+    sprintf(szTitle, "%s: %s", szAppTitle, pszModeStr[caps.ulMode]);
+    WinSetWindowText(WinWindowFromID(hWndFrame, FID_TITLEBAR), szTitle);
+
     WinSetWindowPos(hWndFrame,HWND_TOP,100,100,MPEGInfo.Width,MPEGInfo.Height,SWP_SIZE|SWP_MOVE|SWP_SHOW|SWP_ZORDER|SWP_ACTIVATE);
     WinQueryWindowRect(hWndClient,&rect);
     WinSetWindowPos(hWndFrame,HWND_TOP,100,100,2*MPEGInfo.Width-rect.xRight+rect.xLeft,2*MPEGInfo.Height-rect.yTop+rect.yBottom,SWP_SIZE|SWP_MOVE|SWP_SHOW|SWP_ZORDER|SWP_ACTIVATE);
