@@ -1,7 +1,7 @@
 # Makefile for kLIBC/GNU Make
 .PHONY : all
 
-.SUFFIXES : .exe .a .lib .dll .o .c .h .def .sym
+.SUFFIXES : .exe .a .lib .dll .o .c .h .def
 
 ifeq ($(PREFIX),)
 PREFIX=/usr
@@ -27,7 +27,6 @@ DLLVER = 0
 KVADLL = kva$(DLLVER).dll
 KVADLLNAME = kva$(DLLVER)
 KVADLLDEF = kvadll.def
-KVADLLSYM = kvadll.sym
 
 .c.o :
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -47,15 +46,23 @@ kva_dll.a : $(KVADLL)
 $(KVADLL) : $(KVAOBJS) $(KVADLLDEF)
 	$(CC) -Zdll $(LDFLAGS) -o $@ $^
 
-$(KVADLLDEF) : $(KVADLLSYM)
+$(KVADLLDEF) :
 	echo LIBRARY $(KVADLLNAME) INITINSTANCE TERMINSTANCE > $@
 	echo DATA MULTIPLE NONSHARED >> $@
 	echo EXPORTS >> $@
-	cat $(KVADLLSYM) >> $@
-
-# To prevent circular dependency between kvadll.def and kvadll.sym
-$(KVADLLSYM) :
-	# tab
+	echo     kvaInit >> $@
+	echo     kvaAdjustDstRect >> $@
+	echo     kvaDone >> $@
+	echo     kvaLockBuffer >> $@
+	echo     kvaUnlockBuffer >> $@
+	echo     kvaSetup >> $@
+	echo     kvaCaps >> $@
+	echo     kvaClearRect >> $@
+	echo     kvaQueryAttr >> $@
+	echo     kvaSetAttr >> $@
+	echo     kvaResetAttr >> $@
+	echo     kvaDisableScreenSaver >> $@
+	echo     kvaEnableScreenSaver >> $@
 
 kva.o : kva.c kva.h kva_internal.h kva_dive.h kva_wo.h kva_snap.h kva_vman.h
 
@@ -94,7 +101,7 @@ distclean : clean
 
 src : kva.c kva_dive.c kva_snap.c kva_wo.c \
       kva.h kva_internal.h kva_dive.h kva_snap.h kva_wo.h hwvideo.h \
-      kva_vman.c kva_vman.h gradd.h $(KVADLLSYM) \
+      kva_vman.c kva_vman.h gradd.h \
       Makefile Makefile.icc Makefile.wat \
       kvademo.c kvademo.def mpeg.h mpegdec.dll demo.mpg \
       snapwrap/snapwrap.c snapwrap/snapwrap.def snapwrap/makefile
