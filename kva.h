@@ -30,7 +30,7 @@ extern "C" {
 #endif
 
 /** KVA version macro */
-#define KVA_VERSION "1.2.2"
+#define KVA_VERSION "1.2.3"
 
 /**
  * @defgroup kvamodes KVA modes
