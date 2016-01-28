@@ -21,7 +21,7 @@
 #define __KVA_INTERNAL_H__
 
 #ifdef __cplusplus
-exter "C" {
+extern "C" {
 #endif
 
 #ifdef __IBMC__
