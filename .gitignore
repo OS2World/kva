@@ -12,6 +12,7 @@
 *.bak
 *.txt
 !libkva.txt
+!donation.txt
 *.imp
 med.lru
 kvadll.def
