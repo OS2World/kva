@@ -109,19 +109,19 @@ src : kva.c kva_dive.c kva_snap.c kva_wo.c \
 	zip src.zip $^
 
 install : kva.a kva.lib kva_dll.a kva_dll.lib $(KVADLL) kva.h
-	$(INSTALL) -d $(LIBDIR)
-	$(INSTALL) -d $(INCDIR)
-	$(INSTALL) kva.a $(LIBDIR)
-	$(INSTALL) kva.lib $(LIBDIR)
-	$(INSTALL) kva_dll.a $(LIBDIR)
-	$(INSTALL) kva_dll.lib $(LIBDIR)
-	$(INSTALL) $(KVADLL) $(LIBDIR)
-	$(INSTALL) kva.h $(INCDIR)
-	$(MAKE) -C snapwrap install PREFIX=$(PREFIX) INSTALL=$(INSTALL)
+	$(INSTALL) -d $(DESTDIR)$(LIBDIR)
+	$(INSTALL) -d $(DESTDIR)$(INCDIR)
+	$(INSTALL) kva.a $(DESTDIR)$(LIBDIR)
+	$(INSTALL) kva.lib $(DESTDIR)$(LIBDIR)
+	$(INSTALL) kva_dll.a $(DESTDIR)$(LIBDIR)
+	$(INSTALL) kva_dll.lib $(DESTDIR)$(LIBDIR)
+	$(INSTALL) $(KVADLL) $(DESTDIR)$(LIBDIR)
+	$(INSTALL) kva.h $(DESTDIR)$(INCDIR)
+	$(MAKE) -C snapwrap install PREFIX=$(PREFIX) INSTALL=$(INSTALL) DESTDIR=$(DESTDIR)
 
 uninstall :
-	$(RM) $(LIBDIR)/kva.a $(LIBDIR)/kva.lib
-	$(RM) $(LIBDIR)/kva_dll.a $(LIBDIR)/kva_dll.lib
-	$(RM) $(LIBDIR)/$(KVADLL)
-	$(RM) $(INCDIR)/kva.h
-	$(MAKE) -C snapwrap uninstall
+	$(RM) $(DESTDIR)$(LIBDIR)/kva.a $(DESTDIR)$(LIBDIR)/kva.lib
+	$(RM) $(DESTDIR)$(LIBDIR)/kva_dll.a $(DESTDIR)$(LIBDIR)/kva_dll.lib
+	$(RM) $(DESTDIR)$(LIBDIR)/$(KVADLL)
+	$(RM) $(DESTDIR)$(INCDIR)/kva.h
+	$(MAKE) -C snapwrap uninstall DESTDIR=$(DESTDIR)

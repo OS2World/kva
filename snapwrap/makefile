@@ -49,9 +49,9 @@ clean :
 	$(RM) *.dll
 
 install : snapwrap.dll
-	$(INSTALL) -d $(LIBDIR)
-	$(INSTALL) snapwrap.dll $(LIBDIR)
+	$(INSTALL) -d $(DESTDIR)$(LIBDIR)
+	$(INSTALL) snapwrap.dll $(DESTDIR)$(LIBDIR)
 
 uninstall :
-	$(RM) $(LIBDIR)/snapwrap.dll
+	$(RM) $(DESTDIR)$(LIBDIR)/snapwrap.dll
 
