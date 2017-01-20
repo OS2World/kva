@@ -89,15 +89,8 @@ clean :
 	$(RM) *.exe
 	$(MAKE) -C snapwrap clean
 
-dist : src
-	mkdir kva_dist
-	$(MAKE) install PREFIX=$(shell pwd)/kva_dist
-	( cd kva_dist && zip -rpSm ../libkva-$(VER).zip * )
-	rmdir kva_dist
-	zip -m libkva-$(VER).zip src.zip
-
 distclean : clean
-	$(RM) *.zip
+	$(RM) libkva-*
 
 src : kva.c kva_dive.c kva_snap.c kva_wo.c \
       kva.h kva_internal.h kva_dive.h kva_snap.h kva_wo.h hwvideo.h \
@@ -105,8 +98,12 @@ src : kva.c kva_dive.c kva_snap.c kva_wo.c \
       Makefile Makefile.icc Makefile.wat \
       kvademo.c kvademo.def mpeg.h mpegdec.dll demo.mpg \
       snapwrap/snapwrap.c snapwrap/snapwrap.def snapwrap/makefile
-	$(RM) src.zip
-	zip src.zip $^
+	$(RM) libkva-$(VER)-src.zip
+	$(RM) -r libkva-$(VER)
+	zip libkva-$(VER)-src.zip $^
+	unzip libkva-$(VER)-src.zip -d libkva-$(VER)
+	$(RM) -r libkva-$(VER)-src.zip
+	zip -rpSm libkva-$(VER)-src.zip libkva-$(VER)
 
 install : kva.a kva.lib kva_dll.a kva_dll.lib $(KVADLL) kva.h
 	$(INSTALL) -d $(DESTDIR)$(LIBDIR)
