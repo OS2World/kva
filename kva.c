@@ -257,7 +257,7 @@ APIRET APIENTRY kvaCaps( PKVACAPS pkvac )
     if( !pkvac )
         return KVAE_INVALID_PARAMETER;
 
-    memset( pkvac, 0, sizeof( PKVACAPS ));
+    memset( pkvac, 0, sizeof( KVACAPS ));
 
     return m_kva.pfnCaps( pkvac );
 }
