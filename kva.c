@@ -95,7 +95,7 @@ APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
     if( !hwnd )
         return rc;
 
-    if( DosGetNamedSharedMem( &m_pfHWInUse, KVA_SHARED_MEM_NAME, fPERM ) == 0 )
+    if( DosGetNamedSharedMem(( PPVOID )&m_pfHWInUse, KVA_SHARED_MEM_NAME, fPERM ) == 0 )
     {
         if( *m_pfHWInUse )
         {
@@ -111,7 +111,7 @@ APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
     }
     else
     {
-        if( DosAllocSharedMem( &m_pfHWInUse, KVA_SHARED_MEM_NAME, sizeof( BOOL ), fALLOC ) != 0 )
+        if( DosAllocSharedMem(( PPVOID )&m_pfHWInUse, KVA_SHARED_MEM_NAME, sizeof( BOOL ), fALLOC ) != 0 )
             return KVAE_NOT_ENOUGH_MEMORY;
 
         *m_pfHWInUse = FALSE;
@@ -137,7 +137,7 @@ APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
 
     if( !rc )
     {
-        UCHAR szError[ 256 ];
+        CHAR szError[ 256 ];
 
         if( kvaMode == KVAM_SNAP || kvaMode == KVAM_WO )
             *m_pfHWInUse = m_fHWInUse = TRUE;

@@ -11,7 +11,7 @@ INSTALL=ginstall
 endif
 
 CC = gcc
-CFLAGS = -Zomf -Wall -O3
+CFLAGS = -Zomf -Wall -O3 -DOS2EMX_PLAIN_CHAR -funsigned-char
 
 RM = rm -f
 

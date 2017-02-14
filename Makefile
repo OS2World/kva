@@ -14,7 +14,7 @@ INSTALL=ginstall
 endif
 
 CC = gcc
-CFLAGS = -Wall -O3
+CFLAGS = -Wall -O3 -DOS2EMX_PLAIN_CHAR -funsigned-char
 LDFLAGS =
 
 AR = ar

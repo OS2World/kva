@@ -215,7 +215,7 @@ int main ( int argc, char *argv[] )
       // calculate timing
     FrameTime=1000/MPEGInfo.PictureRate;
       //Timer, which used to change frames
-    WinStartTimer(hab,hWndClient,101,40);
+    WinStartTimer(hab,hWndClient,101,FrameTime / 5 /* 5x speed */);
     while(WinGetMsg (hab, &qmsg, 0, 0, 0))
           WinDispatchMsg (hab, &qmsg);
 

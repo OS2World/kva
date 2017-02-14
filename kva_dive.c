@@ -68,7 +68,7 @@ static DECLARE_PFN( ULONG, APIENTRY, m_pfnDiveEndImageBufferAccess, ( HDIVE, ULO
 
 static BOOL loadDive( VOID )
 {
-    UCHAR szFailedName[ 256 ];
+    CHAR szFailedName[ 256 ];
 
     if( DosLoadModule( szFailedName, sizeof( szFailedName ), "DIVE", &m_hmodDive ))
         return FALSE;

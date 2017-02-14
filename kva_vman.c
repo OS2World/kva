@@ -85,7 +85,7 @@ static DECLARE_PFN( ULONG, APIENTRY, m_pfnDiveEndImageBufferAccess, ( HDIVE, ULO
 
 static BOOL loadVman( VOID )
 {
-    UCHAR szFailedName[ 256 ];
+    CHAR szFailedName[ 256 ];
 
     if( DosLoadModule( szFailedName, sizeof( szFailedName ), "VMAN", &m_hmodVman ))
         return FALSE;
@@ -98,7 +98,7 @@ static BOOL loadVman( VOID )
 
 static BOOL loadDive( VOID )
 {
-    UCHAR szFailedName[ 256 ];
+    CHAR szFailedName[ 256 ];
 
     if( DosLoadModule( szFailedName, sizeof( szFailedName ), "DIVE", &m_hmodDive ))
         return FALSE;
@@ -455,7 +455,8 @@ static APIRET APIENTRY vmanLockBuffer( PPVOID ppBuffer, PULONG pulBPL )
     ULONG ulScanLines;
 
     return m_pfnDiveBeginImageBufferAccess( m_hdive, m_ulSrcBufNum,
-                                            ppBuffer, pulBPL, &ulScanLines );
+                                            ( PBYTE * )ppBuffer, pulBPL,
+                                            &ulScanLines );
 }
 
 // Using a dest buffer got from DiveBeginImageBufferAccess() can cause
