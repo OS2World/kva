@@ -60,12 +60,13 @@ APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
     {
         ULONG mode;
         DECLARE_PFN( APIRET, APIENTRY, init, ( HWND, ULONG, PKVAAPIS ));
+        BOOL useHW;
     } initRoutines[] = {
-        { KVAM_SNAP, kvaSnapInit },
-        { KVAM_WO, kvaWoInit },
-        { KVAM_VMAN, kvaVmanInit },
-        { KVAM_DIVE, kvaDiveInit },
-        { 0, NULL },
+        { KVAM_SNAP, kvaSnapInit, TRUE },
+        { KVAM_WO, kvaWoInit, TRUE },
+        { KVAM_VMAN, kvaVmanInit, FALSE },
+        { KVAM_DIVE, kvaDiveInit, FALSE },
+        { 0, NULL, FALSE },
     }, *initRoutine;
 
     ULONG   rc;
@@ -95,23 +96,11 @@ APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
     if( !hwnd )
         return rc;
 
-    if( DosGetNamedSharedMem(( PPVOID )&m_pfHWInUse, KVA_SHARED_MEM_NAME, fPERM ) == 0 )
+    if( DosGetNamedSharedMem(( PPVOID )&m_pfHWInUse, KVA_SHARED_MEM_NAME,
+                             fPERM ))
     {
-        if( *m_pfHWInUse )
-        {
-            if( kvaMode == KVAM_SNAP || kvaMode == KVAM_WO )
-            {
-                DosFreeMem( m_pfHWInUse );
-
-                return KVAE_HW_IN_USE;
-            }
-            else if( kvaMode == KVAM_AUTO )
-                kvaMode = KVAM_DIVE;
-        }
-    }
-    else
-    {
-        if( DosAllocSharedMem(( PPVOID )&m_pfHWInUse, KVA_SHARED_MEM_NAME, sizeof( BOOL ), fALLOC ) != 0 )
+        if( DosAllocSharedMem(( PPVOID )&m_pfHWInUse, KVA_SHARED_MEM_NAME,
+                              sizeof( BOOL ), fALLOC ))
             return KVAE_NOT_ENOUGH_MEMORY;
 
         *m_pfHWInUse = FALSE;
@@ -122,25 +111,49 @@ APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
 
     for( initRoutine = initRoutines; initRoutine->init; initRoutine++ )
     {
-        if( kvaMode == initRoutine->mode || kvaMode == KVAM_AUTO )
+        // explicitly set ?
+        if( kvaMode == initRoutine->mode )
         {
-            rc = initRoutine->init( m_hwndKVA, m_ulKeyColor, &m_kva );
-            if( rc )
+            // HW can be used only once at the same time
+            if( *m_pfHWInUse && initRoutine->useHW )
             {
-                if( kvaMode != KVAM_AUTO )
-                    return rc;
+                DosFreeMem( m_pfHWInUse );
+
+                return KVAE_HW_IN_USE;
             }
-            else
-                kvaMode = initRoutine->mode;
+        }
+        // searching ?
+        else if( kvaMode == KVAM_AUTO )
+        {
+            // do not give up. search next
+            if( *m_pfHWInUse && initRoutine->useHW )
+                continue;
+        }
+        // not wanted mode. search next
+        else
+            continue;
+
+        rc = initRoutine->init( m_hwndKVA, m_ulKeyColor, &m_kva );
+        if( rc )
+        {
+            // explicitly set ? then fail
+            if( kvaMode != KVAM_AUTO )
+                return rc;
+
+            // AUTO mode, search next
+        }
+        else
+        {
+            if( initRoutine->useHW )
+                *m_pfHWInUse = m_fHWInUse = TRUE;
+
+            break;
         }
     }
 
     if( !rc )
     {
         CHAR szError[ 256 ];
-
-        if( kvaMode == KVAM_SNAP || kvaMode == KVAM_WO )
-            *m_pfHWInUse = m_fHWInUse = TRUE;
 
         if( DosLoadModule( szError, sizeof( szError ), "SSCORE", &m_hmodSSCore ) == 0 )
         {
