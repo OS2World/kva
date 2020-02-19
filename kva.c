@@ -61,13 +61,16 @@ APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
         ULONG mode;
         DECLARE_PFN( APIRET, APIENTRY, init, ( HWND, ULONG, PKVAAPIS ));
         BOOL useHW;
+        const char *name;
     } initRoutines[] = {
-        { KVAM_SNAP, kvaSnapInit, TRUE },
-        { KVAM_WO, kvaWoInit, TRUE },
-        { KVAM_VMAN, kvaVmanInit, FALSE },
-        { KVAM_DIVE, kvaDiveInit, FALSE },
-        { 0, NULL, FALSE },
+        { KVAM_SNAP, kvaSnapInit, TRUE, "SNAP" },
+        { KVAM_WO, kvaWoInit, TRUE, "WO" },
+        { KVAM_VMAN, kvaVmanInit, FALSE, "VMAN" },
+        { KVAM_DIVE, kvaDiveInit, FALSE, "DIVE" },
+        { 0, NULL, FALSE, NULL },
     }, *initRoutine;
+
+    const char *pszAutoMode;
 
     ULONG   rc;
 
@@ -108,6 +111,21 @@ APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
 
     m_hwndKVA = hwnd;
     m_ulKeyColor = ulKeyColor;
+
+    // Use the specified mode by KVA_AUTOMODE if auto mode
+    if( kvaMode == KVAM_AUTO &&
+        ( pszAutoMode = getenv("KVA_AUTOMODE")) != NULL )
+    {
+        // Find corresponding mode
+        for( initRoutine = initRoutines; initRoutine->name; initRoutine++ )
+        {
+            if( !stricmp( pszAutoMode, initRoutine->name ))
+            {
+                kvaMode = initRoutine->mode;
+                break;
+            }
+        }
+    }
 
     for( initRoutine = initRoutines; initRoutine->init; initRoutine++ )
     {
