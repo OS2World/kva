@@ -7,6 +7,15 @@
                           K Video Accelerator.
                           Support SNAP/WarpOverlay!/VMAN/DIVE
 
+v1.2.4 :
+    * Introduced KVA_AUTOMODE to override kva mode if auto mode
+        - SNAP, WO, VMAN and DIVE are available
+        - For example, in order to use DIVE mode as a default mode, do
+            set KVA_AUTOMODE=DIVE
+
+    * Fixed DIVE is always used if HW is not availble
+        - VMAN is checked, too
+
 v1.2.3 :
     * Fixed the crash on AUTO mode or SNAP mode if SDDGRADD.DLL(
     SET C1=SDDGRADD in config.sys ) was not loaded, but SDDHELP.SYS was loaded.
