@@ -21,6 +21,14 @@ AR = ar
 
 RM = rm -f
 
+BLDLEVEL_VENDOR := OS/2 Factory
+BLDLEVEL_VERSION_MACRO := KVA_VERSION
+BLDLEVEL_VERSION_FILE := kva.h
+BLDLEVEL_VERSION := $(shell sed -n -e "s/^[ \t]*\#[ \t]*define[ \t]\+$(BLDLEVEL_VERSION_MACRO)[ \t]\+\"\(.*\)\"/\1/p" $(BLDLEVEL_VERSION_FILE))
+BLDLEVEL_DATE := $(shell LANG=C date +"\" %F %T %^Z  \"")
+BLDLEVEL_HOST = $(shell echo $(HOSTNAME) | cut -b -11)
+BLDLEVEL := @\#$(BLDLEVEL_VENDOR):$(BLDLEVEL_VERSION)\#@\#\#1\#\#$(BLDLEVEL_DATE)$(BLDLEVEL_HOST)::::::@@
+
 KVAOBJS = kva.o kva_dive.o kva_wo.o kva_snap.o kva_vman.o
 
 DLLVER = 0
@@ -45,6 +53,7 @@ kva_dll.a : $(KVADLL)
 
 $(KVADLL) : $(KVAOBJS) $(KVADLLDEF)
 	$(CC) -Zdll $(LDFLAGS) -o $@ $^
+	echo $(BLDLEVEL)K Video Accelerator >> $@
 
 $(KVADLLDEF) :
 	echo LIBRARY $(KVADLLNAME) INITINSTANCE TERMINSTANCE > $@
@@ -76,6 +85,7 @@ kva_vman.o : kva_vman.c kva.h kva_internal.h kva_vman.h
 
 kvademo.exe : kvademo.o kva.a kvademo.def
 	$(CC) $(LDFLAGS) -o $@ $^
+	echo $(BLDLEVEL)KVA demo >> $@
 
 kvademo.o : kvademo.c kva.h mpeg.h
 
