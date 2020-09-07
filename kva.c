@@ -99,11 +99,11 @@ APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
     if( !hwnd )
         return rc;
 
-    if( DosGetNamedSharedMem(( PPVOID )&m_pfHWInUse, KVA_SHARED_MEM_NAME,
-                             fPERM ))
+    if( DosAllocSharedMem(( PPVOID )&m_pfHWInUse, KVA_SHARED_MEM_NAME,
+                          sizeof( BOOL ), fALLOC ))
     {
-        if( DosAllocSharedMem(( PPVOID )&m_pfHWInUse, KVA_SHARED_MEM_NAME,
-                              sizeof( BOOL ), fALLOC ))
+        if( DosGetNamedSharedMem(( PPVOID )&m_pfHWInUse, KVA_SHARED_MEM_NAME,
+                                 fPERM ))
             return KVAE_NOT_ENOUGH_MEMORY;
 
         *m_pfHWInUse = FALSE;
