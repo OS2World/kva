@@ -105,9 +105,10 @@ APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
         if( DosGetNamedSharedMem(( PPVOID )&m_pfHWInUse, KVA_SHARED_MEM_NAME,
                                  fPERM ))
             return KVAE_NOT_ENOUGH_MEMORY;
-
-        *m_pfHWInUse = FALSE;
     }
+    else
+        *m_pfHWInUse = FALSE;
+
 
     m_hwndKVA = hwnd;
     m_ulKeyColor = ulKeyColor;
