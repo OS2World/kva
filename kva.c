@@ -32,7 +32,8 @@
 #include "kva_snap.h"
 #include "kva_vman.h"
 
-#define KVA_SHARED_MEM_NAME "\\SHAREMEM\\KVA\\HWINUSE"
+#define KVA_SHARED_MUTEX_NAME   "\\SEM32\\KVA\\HWINUSE"
+#define KVA_SHARED_MEM_NAME     "\\SHAREMEM\\KVA\\HWINUSE"
 
 static KVAAPIS  m_kva = { NULL, };
 
@@ -47,6 +48,7 @@ static RECTL    m_rclDstRect = { 0, };
 static BOOL     m_fKVAInited = FALSE;
 static BOOL     m_fLocked = FALSE;
 
+static HMTX     m_hmtxHWInUse = NULLHANDLE;
 static PBOOL    m_pfHWInUse = NULL;
 static BOOL     m_fHWInUse = FALSE;
 
@@ -128,6 +130,14 @@ APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
         }
     }
 
+    if( DosCreateMutexSem( KVA_SHARED_MUTEX_NAME, &m_hmtxHWInUse, 0, FALSE ))
+    {
+        if( DosOpenMutexSem( KVA_SHARED_MUTEX_NAME, &m_hmtxHWInUse ))
+            return KVAE_NOT_ENOUGH_MEMORY;
+    }
+
+    DosRequestMutexSem( m_hmtxHWInUse, SEM_INDEFINITE_WAIT );
+
     for( initRoutine = initRoutines; initRoutine->init; initRoutine++ )
     {
         // explicitly set ?
@@ -137,6 +147,9 @@ APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
             if( *m_pfHWInUse && initRoutine->useHW )
             {
                 DosFreeMem( m_pfHWInUse );
+
+                DosReleaseMutexSem( m_hmtxHWInUse );
+                DosClose( m_hmtxHWInUse );
 
                 return KVAE_HW_IN_USE;
             }
@@ -157,7 +170,12 @@ APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
         {
             // explicitly set ? then fail
             if( kvaMode != KVAM_AUTO )
+            {
+                DosReleaseMutexSem( m_hmtxHWInUse );
+                DosClose( m_hmtxHWInUse );
+
                 return rc;
+            }
 
             // AUTO mode, search next
         }
@@ -169,6 +187,8 @@ APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
             break;
         }
     }
+
+    DosReleaseMutexSem( m_hmtxHWInUse );
 
     if( !rc )
     {
@@ -191,6 +211,8 @@ APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
 
         m_fKVAInited = TRUE;
     }
+    else
+        DosClose( m_hmtxHWInUse );
 
     return rc;
 }
@@ -208,8 +230,14 @@ APIRET APIENTRY kvaDone( VOID )
 
     DosFreeModule( m_hmodSSCore );
 
+    DosRequestMutexSem( m_hmtxHWInUse, SEM_INDEFINITE_WAIT );
+
     if( m_fHWInUse )
         *m_pfHWInUse = FALSE;
+
+    DosReleaseMutexSem( m_hmtxHWInUse );
+
+    DosCloseMutexSem( m_hmtxHWInUse );
 
     DosFreeMem( m_pfHWInUse );
 
