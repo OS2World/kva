@@ -101,12 +101,25 @@ APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
     if( !hwnd )
         return rc;
 
+    if( DosCreateMutexSem( KVA_SHARED_MUTEX_NAME, &m_hmtxHWInUse, 0, FALSE ))
+    {
+        if( DosOpenMutexSem( KVA_SHARED_MUTEX_NAME, &m_hmtxHWInUse ))
+            return KVAE_NOT_ENOUGH_MEMORY;
+    }
+
+    DosRequestMutexSem( m_hmtxHWInUse, SEM_INDEFINITE_WAIT );
+
     if( DosAllocSharedMem(( PPVOID )&m_pfHWInUse, KVA_SHARED_MEM_NAME,
                           sizeof( BOOL ), fALLOC ))
     {
         if( DosGetNamedSharedMem(( PPVOID )&m_pfHWInUse, KVA_SHARED_MEM_NAME,
                                  fPERM ))
+        {
+            DosReleaseMutexSem( m_hmtxHWInUse );
+            DosCloseMutexSem( m_hmtxHWInUse );
+
             return KVAE_NOT_ENOUGH_MEMORY;
+        }
     }
     else
         *m_pfHWInUse = FALSE;
@@ -129,14 +142,6 @@ APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
             }
         }
     }
-
-    if( DosCreateMutexSem( KVA_SHARED_MUTEX_NAME, &m_hmtxHWInUse, 0, FALSE ))
-    {
-        if( DosOpenMutexSem( KVA_SHARED_MUTEX_NAME, &m_hmtxHWInUse ))
-            return KVAE_NOT_ENOUGH_MEMORY;
-    }
-
-    DosRequestMutexSem( m_hmtxHWInUse, SEM_INDEFINITE_WAIT );
 
     for( initRoutine = initRoutines; initRoutine->init; initRoutine++ )
     {
@@ -237,9 +242,9 @@ APIRET APIENTRY kvaDone( VOID )
 
     DosReleaseMutexSem( m_hmtxHWInUse );
 
-    DosCloseMutexSem( m_hmtxHWInUse );
-
     DosFreeMem( m_pfHWInUse );
+
+    DosCloseMutexSem( m_hmtxHWInUse );
 
     m_fKVAInited = FALSE;
 
