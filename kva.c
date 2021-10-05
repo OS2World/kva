@@ -176,6 +176,8 @@ APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
             // explicitly set ? then fail
             if( kvaMode != KVAM_AUTO )
             {
+                DosFreeMem( m_pfHWInUse );
+
                 DosReleaseMutexSem( m_hmtxHWInUse );
                 DosClose( m_hmtxHWInUse );
 
@@ -217,7 +219,11 @@ APIRET APIENTRY kvaInit( ULONG kvaMode, HWND hwnd, ULONG ulKeyColor )
         m_fKVAInited = TRUE;
     }
     else
+    {
+        DosFreeMem( m_pfHWInUse );
+
         DosClose( m_hmtxHWInUse );
+    }
 
     return rc;
 }
